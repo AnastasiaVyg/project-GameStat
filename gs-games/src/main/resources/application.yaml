@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: gs-games
+  datasource:
+    url: jdbc:postgresql://localhost:5432/games
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    enabled: true
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+server:
+  port: 7102

@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2020-10-10--0003-player
+      author: avygovskaya
+      changes:
+        - createTable:
+            - tableName: players
+              columns:
+                - column:
+                    name: id
+                    type: bigint
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                - column:
+                    name: name
+                    type: varchar(255)
+                    constraints:
+                      nullable: false
+                - column:
+                    name: user_id
+                    type: bigint
+                    constraints:
+                      nullable: true
+                      foreignKeyName: fk_player_user
+                      references: users(id)
+                      deleteCascade: false

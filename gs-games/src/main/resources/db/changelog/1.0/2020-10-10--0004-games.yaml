@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2020-10-10--0004-game
+      author: avygovskaya
+      changes:
+        - createTable:
+            - tableName: games
+              columns:
+                - column:
+                    name: id
+                    type: bigint
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                - column:
+                    name: name
+                    type: varchar(255)
+                    constraints:
+                      nullable: false

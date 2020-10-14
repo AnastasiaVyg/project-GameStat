@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2020-10-11--0001-test-data-team
+      author: avygovskaya
+      context: test
+      runOnChange: true
+      loadUpdateData:
+        primaryKey: id
+        file: data/2020-10-11--0001-team.csv
+        relativeToChangelogFile: true
+        separator: ;
+        quotChar: '"'
+        seperator: ';'
+        encoding: UTF-8
+        tableName: teams
+
+  - changeSet:
+      id: 2020-10-11--0001-test-data-player
+      author: avygovskaya
+      context: test
+      runOnChange: true
+      loadUpdateData:
+        primaryKey: id
+        file: data/2020-10-11--0002-player.csv
+        relativeToChangelogFile: true
+        separator: ;
+        quotChar: '"'
+        seperator: ';'
+        encoding: UTF-8
+        tableName: players
+
+  - changeSet:
+      id: 2020-10-11--0001-test-data-game
+      author: avygovskaya
+      context: test
+      runOnChange: true
+      loadUpdateData:
+        primaryKey: id
+        file: data/2020-10-11--0003-game.csv
+        relativeToChangelogFile: true
+        separator: ;
+        quotChar: '"'
+        seperator: ';'
+        encoding: UTF-8
+        tableName: games
+
+  - changeSet:
+      id: 2020-10-11--0001-test-data-team-player
+      author: avygovskaya
+      context: test
+      runOnChange: true
+      loadUpdateData:
+        primaryKey: id
+        file: data/2020-10-11--0004-team-player.csv
+        relativeToChangelogFile: true
+        separator: ;
+        quotChar: '"'
+        seperator: ';'
+        encoding: UTF-8
+        tableName: teams_players
+
+  - changeSet:
+      id: 2020-10-11--0001-test-data-game-session
+      author: avygovskaya
+      context: test
+      runOnChange: true
+      loadUpdateData:
+        primaryKey: id
+        file: data/2020-10-11--0005-game-session.csv
+        relativeToChangelogFile: true
+        separator: ;
+        quotChar: '"'
+        seperator: ';'
+        encoding: UTF-8
+        tableName: game_sessions
