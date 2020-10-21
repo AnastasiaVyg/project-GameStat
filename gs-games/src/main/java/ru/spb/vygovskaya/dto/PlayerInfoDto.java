@@ -4,9 +4,12 @@ import ru.spb.vygovskaya.domain.Player;
 import ru.spb.vygovskaya.domain.User;
 
 public class PlayerInfoDto {
-    private long id;
+    private long id = -1;
     private String name;
     private User user;
+
+    public PlayerInfoDto() {
+    }
 
     public PlayerInfoDto(long id, String name, User user) {
         this.id = id;

@@ -73,3 +73,18 @@ databaseChangeLog:
         seperator: ';'
         encoding: UTF-8
         tableName: game_sessions
+
+  - changeSet:
+      id: 2020-10-11--0001-test-data-game-result
+      author: avygovskaya
+      context: test
+      runOnChange: true
+      loadUpdateData:
+        primaryKey: id
+        file: data/2020-10-11--0006-game-results.csv
+        relativeToChangelogFile: true
+        separator: ;
+        quotChar: '"'
+        seperator: ';'
+        encoding: UTF-8
+        tableName: game_results

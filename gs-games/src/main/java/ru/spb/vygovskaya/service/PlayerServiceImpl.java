@@ -2,6 +2,7 @@ package ru.spb.vygovskaya.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.spb.vygovskaya.domain.Game;
 import ru.spb.vygovskaya.domain.Player;
 import ru.spb.vygovskaya.domain.User;
 import ru.spb.vygovskaya.dto.PlayerDto;
@@ -57,7 +58,15 @@ public class PlayerServiceImpl implements PlayerService{
     }
 
     @Override
-    public boolean update(PlayerDto playerDto) {
-        return false;
+    public boolean updateName(Long id, String name) {
+        Optional<Player> optionalPlayer = findById(id);
+        if (optionalPlayer.isPresent()){
+            Player player = optionalPlayer.get();
+            player.setName(name);
+            playerRepository.save(player);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

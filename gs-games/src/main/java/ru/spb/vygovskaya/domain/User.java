@@ -10,7 +10,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long id = -1;
 
     @Column(name = "autorize_key")
     private long autorizeKey;

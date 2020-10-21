@@ -9,7 +9,7 @@ public class GameSession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long id = -1;
 
     @Column(name = "date")
     private Date date;
@@ -22,26 +22,26 @@ public class GameSession {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @ManyToOne(targetEntity = Player.class, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "winner_id")
-    private Player winner;
+//    @ManyToOne(targetEntity = Player.class, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+//    @JoinColumn(name = "winner_id")
+//    private Player winner;
 
     public GameSession() {
     }
 
-    public GameSession(long id, Date date, Game game, Team team, Player winner) {
+    public GameSession(long id, Date date, Game game, Team team) {
         this.id = id;
         this.date = date;
         this.game = game;
         this.team = team;
-        this.winner = winner;
+//        this.winner = winner;
     }
 
-    public GameSession(Date date, Game game, Team team, Player winner) {
+    public GameSession(Date date, Game game, Team team) {
         this.date = date;
         this.game = game;
         this.team = team;
-        this.winner = winner;
+//        this.winner = winner;
     }
 
     public long getId() {
@@ -76,11 +76,11 @@ public class GameSession {
         this.team = team;
     }
 
-    public Player getWinner() {
-        return winner;
-    }
+//    public Player getWinner() {
+//        return winner;
+//    }
 
-    public void setWinner(Player winner) {
-        this.winner = winner;
-    }
+//    public void setWinner(Player winner) {
+//        this.winner = winner;
+//    }
 }

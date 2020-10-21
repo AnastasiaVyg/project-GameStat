@@ -16,10 +16,12 @@ import java.util.Optional;
 public class TeamServiceImpl implements TeamService{
 
     private final TeamRepository teamRepository;
+    private final PlayerService playerService;
 
     @Autowired
-    public TeamServiceImpl(TeamRepository teamRepository) {
+    public TeamServiceImpl(TeamRepository teamRepository, PlayerService playerService) {
         this.teamRepository = teamRepository;
+        this.playerService = playerService;
     }
 
     @Override
@@ -34,7 +36,15 @@ public class TeamServiceImpl implements TeamService{
     public TeamDto save(TeamDto teamDto) {
         Team team = new Team(teamDto.getName());
         Team teamSave = teamRepository.save(team);
-        return new TeamDto(teamSave);
+        teamDto.getPlayers().stream().forEach(playerInfoDto -> {
+            Optional<Player> player = playerService.findById(playerInfoDto.getId());
+            player.ifPresent(player1 -> {
+                teamSave.addPlayer(player1);
+                player1.addTeam(teamSave);
+            });
+        });
+        Team teamSave2 = teamRepository.save(teamSave);
+        return new TeamDto(teamSave2);
     }
 
     @Override

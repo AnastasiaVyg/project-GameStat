@@ -1,10 +1,10 @@
 databaseChangeLog:
   - changeSet:
-      id: 2020-10-11--0006-game_session
+      id: 2020-10-11--0007-game_result
       author: avygovskaya
       changes:
         - createTable:
-            - tableName: game_sessions
+            - tableName: game_results
               columns:
                 - column:
                     name: id
@@ -14,23 +14,23 @@ databaseChangeLog:
                       nullable: false
                       primaryKey: true
                 - column:
-                    name: date
-                    type: date
-                    constraints:
-                      nullable: false
-                - column:
-                    name: game_id
+                    name: game_session_id
                     type: bigint
                     constraints:
                       nullable: false
-                      foreignKeyName: fk_session_game
-                      references: games(id)
-                      deleteCascade: true
+                      foreignKeyName: fk_result_session_game
+                      references: game_sessions(id)
+                      deleteCascade: false
                 - column:
-                    name: team_id
+                    name: player_id
                     type: bigint
                     constraints:
                       nullable: false
-                      foreignKeyName: fk_session_team
-                      references: teams(id)
-                      deleteCascade: true
+                      foreignKeyName: fk_result_player
+                      references: players(id)
+                      deleteCascade: false
+                - column:
+                    name: points
+                    type: bigint
+                    constraints:
+                      nullable: false

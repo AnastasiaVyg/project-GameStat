@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerDto {
-    private long id;
+    private long id = -1;
     private String name;
     private User user;
-    private List<TeamInfoDto> teams;
+    private List<TeamInfoDto> teams = new ArrayList<>();
+
+    public PlayerDto() {
+    }
 
     public PlayerDto(long id, String name, User user) {
         this.id = id;

@@ -3,8 +3,11 @@ package ru.spb.vygovskaya.dto;
 import ru.spb.vygovskaya.domain.Team;
 
 public class TeamInfoDto {
-    private long id;
+    private long id = -1;
     private String name;
+
+    public TeamInfoDto() {
+    }
 
     public TeamInfoDto(long id, String name) {
         this.id = id;

@@ -2,8 +2,6 @@ package ru.spb.vygovskaya.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.spb.vygovskaya.domain.Game;
-import ru.spb.vygovskaya.domain.Player;
 import ru.spb.vygovskaya.dto.PlayerDto;
 import ru.spb.vygovskaya.service.PlayerService;
 
@@ -31,7 +29,7 @@ public class PlayerController {
 
     @PutMapping("/players/{id}")
     public boolean updatePlayer(@PathVariable Long id, @RequestBody PlayerDto player){
-        return playerService.update(player);
+        return playerService.updateName(id, player.getName());
     }
 
     @DeleteMapping("/players/{id}")
