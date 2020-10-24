@@ -3,7 +3,7 @@ import {createStore} from "redux";
 import './App.css';
 import {GameTable} from "./view/GameTable";
 import {PlayerTable} from "./view/PlayerTable";
-import {BookTable} from "./view/BookTable";
+import {GameSessionTable} from "./view/GameSessionTable";
 import Tabs from "@material-ui/core/Tabs";
 import AppBar from '@material-ui/core/AppBar';
 import Tab from "@material-ui/core/Tab";
@@ -84,7 +84,7 @@ export function App() {
                         <TeamTable/>
                     </TabPanel>
                     <TabPanel value={value} index={3}>
-                        <BookTable/>
+                        <GameSessionTable/>
                     </TabPanel>
                 </div>
                 </Container>

@@ -10,7 +10,7 @@ public class GameResult {
     private long id = -1;
 
     @ManyToOne(targetEntity = GameSession.class, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "session_id")
+    @JoinColumn(name = "game_session_id")
     private GameSession gameSession;
 
     @ManyToOne(targetEntity = Player.class, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)

@@ -2,7 +2,7 @@ package ru.spb.vygovskaya.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.spb.vygovskaya.domain.Game;
+import org.springframework.transaction.annotation.Transactional;
 import ru.spb.vygovskaya.domain.Player;
 import ru.spb.vygovskaya.domain.User;
 import ru.spb.vygovskaya.dto.PlayerDto;
@@ -32,10 +32,11 @@ public class PlayerServiceImpl implements PlayerService{
     public List<PlayerDto> findAll() {
         List<Player> players = playerRepository.findAll();
         List<PlayerDto> result = new ArrayList<>();
-        players.stream().forEach(player -> result.add(new PlayerDto(player)));
+        players.forEach(player -> result.add(new PlayerDto(player)));
         return result;
     }
 
+    @Transactional
     @Override
     public PlayerDto save(PlayerDto playerDto) {
         Player player = new Player(playerDto.getName());
@@ -52,11 +53,13 @@ public class PlayerServiceImpl implements PlayerService{
         return playerRepository.findById(id);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         playerRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
     public boolean updateName(Long id, String name) {
         Optional<Player> optionalPlayer = findById(id);

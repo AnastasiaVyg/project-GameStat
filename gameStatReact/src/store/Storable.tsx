@@ -1,31 +1,32 @@
 import {Game} from "../model/Game";
 import {Player} from "../model/Player";
-import {Book, BookDto} from "../model/Book";
+import {GameSession, GameSessionDto, Result} from "../model/GameSession";
 import {Team} from "../model/Team";
 import {
     ADD_PLAYER,
-    ADD_BOOK, ADD_COMMENT,
+    ADD_GAME_SESSION,
     ADD_GAME, CLEAR_ERROR_MESSAGE,
     DELETE_PLAYER,
-    DELETE_BOOK,
-    DELETE_GAME, LOAD_PLAYERS, LOAD_BOOKS, LOAD_COMMENTS, LOAD_GAMES, SET_ERROR_MESSAGE,
-    UPDATE_PLAYER, UPDATE_BOOK,
+    DELETE_GAME_SESSION,
+    DELETE_GAME, LOAD_PLAYERS, LOAD_GAME_SESSIONS, LOAD_GAMES, SET_ERROR_MESSAGE,
+    UPDATE_PLAYER, UPDATE_GAME_SESSION,
     UPDATE_GAME, SHOW_LOGIN_DIALOG, CLEAR_DATA, LOAD_TEAMS, ADD_TEAM
 } from "./ActionConsts";
 import {GameRow} from "../view/GameTable";
 import {PlayerRow} from "../view/PlayerTable";
-import {BookRow} from "../view/BookTable";
+import {GameSessionRow} from "../view/GameSessionTable";
 import {FetchProps} from "./Actions";
+import {TeamRow} from "../view/TeamTable";
 
 export interface AppState {
     games: Array<Game>
     players: Array<Player>
     teams: Array<Team>
-    books: Array<Book>
+    gameSessions: Array<GameSession>
     isLoadedGames: boolean
     isLoadedPlayers: boolean
     isLoadedTeams: boolean
-    isLoadedBooks: boolean
+    isLoadedGameSessions: boolean
     errorMessage: string
     isShowLoginDialog: boolean
     fetchProps: FetchProps
@@ -35,11 +36,11 @@ const initialState: AppState = {
     games: [],
     players: [],
     teams: [],
-    books: [],
+    gameSessions: [],
     isLoadedGames: false,
     isLoadedPlayers: false,
     isLoadedTeams: false,
-    isLoadedBooks: false,
+    isLoadedGameSessions: false,
     errorMessage: "",
     isShowLoginDialog: false,
     fetchProps: {url: "", method:"", body:"", responseFunc: r => {} }
@@ -68,14 +69,9 @@ export function storable(state: AppState = initialState, action: any): AppState 
             const teams = action.data as Array<Team>
             return loadedTeams(state, teams)
         }
-        case LOAD_BOOKS: {
-            const booksDto = action.data as Array<BookDto>
+        case LOAD_GAME_SESSIONS: {
+            const booksDto = action.data as Array<GameSessionDto>
             return loadedBooks(state, booksDto)
-        }
-        case LOAD_COMMENTS: {
-            const comments = action.comments as Array<string>
-            const bookId = action.id
-            return loadedComments(state, comments, bookId)
         }
         case ADD_GAME: {
             const game = action.data as Game
@@ -97,30 +93,25 @@ export function storable(state: AppState = initialState, action: any): AppState 
             const playerRow = action.row as PlayerRow
             return updatePlayer(state, playerRow.player.id, playerRow.name)
         }
-        case DELETE_PLAYER: {
-            const id = action.data as string
-            return deletePlayer(state, id)
-        }
+        // case DELETE_PLAYER: {
+        //     const id = action.data as string
+        //     return deletePlayer(state, id)
+        // }
         case ADD_TEAM: {
             const team = action.data as Team
             return addTeam(state, team)
         }
-        case ADD_BOOK: {
-            const bookDto = action.data as BookDto
-            return addBook(state, bookDto)
-        }
-        case UPDATE_BOOK: {
-            const bookRow = action.row as BookRow
-            return updateBook(state, bookRow)
-        }
-        case DELETE_BOOK: {
+        // case ADD_GAME_SESSION: {
+        //     const bookDto = action.data as GameSessionDto
+        //     return addBook(state, bookDto)
+        // }
+        // case UPDATE_GAME_SESSION: {
+        //     const bookRow = action.row as GameSessionRow
+        //     return updateBook(state, bookRow)
+        // }
+        case DELETE_GAME_SESSION: {
             const id = action.data as string
-            return deleteBook(state, id)
-        }
-        case ADD_COMMENT: {
-            const bookId = action.id as string
-            const comment = action.comment as string
-            return addComment(state, comment, bookId)
+            return deleteGameSession(state, id)
         }
         case SET_ERROR_MESSAGE: {
             const message = action.message
@@ -147,11 +138,11 @@ function clearData(state: AppState): AppState {
         players: [],
         games: [],
         teams: [],
-        books: [],
+        gameSessions: [],
         isLoadedGames: false,
         isLoadedPlayers: false,
         isLoadedTeams: false,
-        isLoadedBooks: false,
+        isLoadedGameSessions: false,
         errorMessage: "",
         isShowLoginDialog: state.isShowLoginDialog,
         fetchProps: state.fetchProps
@@ -174,50 +165,50 @@ function loadedTeams(state: AppState, teams: Array<Team>): AppState {
     return {...state, teams: teams, isLoadedTeams: true}
 }
 
-function loadedBooks(state: AppState, booksDto: Array<BookDto>): AppState {
-    if (state.isLoadedGames === false || state.isLoadedPlayers === false){
+function loadedBooks(state: AppState, gameSessionsDto: Array<GameSessionDto>): AppState {
+    if (state.isLoadedGames === false || state.isLoadedPlayers === false || state.isLoadedTeams === false){
         return state
     }
-    const genres = state.games
-    const authors = state.players
-    const books: Array<Book> = []
-    booksDto.forEach(bookDto => {
-        const genreIndex = getIndex(genres, bookDto.genreId)
-        const authorIndex = getIndex(authors, bookDto.authorId)
-        if (genreIndex === -1 || authorIndex === -1)
+    const games = state.games
+    const players = state.players
+    const teams = state.teams
+    const gameSessions: Array<GameSession> = []
+    gameSessionsDto.forEach(gameSessionDto => {
+        const gameIndex = getIndex(games, gameSessionDto.gameId)
+        const teamIndex = getIndex(teams, gameSessionDto.teamId)
+        if (gameIndex === -1 || teamIndex === -1)
             return
-        const book = new Book(bookDto.id, bookDto.name, authors[authorIndex], genres[genreIndex], bookDto.year)
-        books.push(book)
+        const date = new Date(gameSessionDto.date)
+        const results: Result [] = gameSessionDto.results.map(result => {
+            const playerIndex = getIndex(players, result.playerId)
+            // if (playerIndex === -1){
+            //     return
+            // }
+            return {
+                player: players[playerIndex],
+                points: result.points
+            }
+        })
+        const gameSession = new GameSession(gameSessionDto.id, date, games[gameIndex], teams[teamIndex], results)
+        gameSessions.push(gameSession)
     })
-    return {...state, books: [...books], isLoadedBooks: true}
-    // return {
-    //     players: state.players,
-    //     games: state.games,
-    //     books: books,
-    //     isLoadedGames: state.isLoadedGames,
-    //     isLoadedPlayers: state.isLoadedPlayers,
-    //     isLoadedTeams: state.isLoadedTeams,
-    //     isLoadedBooks: true,
-    //     errorMessage: "",
-    //     isShowLoginDialog: state.isShowLoginDialog,
-    //     fetchProps: state.fetchProps
-    // }
+    return {...state, gameSessions: [...gameSessions], isLoadedGameSessions: true}
 }
 
-function loadedComments(state: AppState, comments: Array<string>, bookId: string): AppState{
-    const books = state.books
-    const bookIndex = getIndex(books, bookId)
-    books[bookIndex].comments = comments
-    books[bookIndex].isLoadedComments = true
-    return {...state, books: [...books]}
-}
+// function loadedComments(state: AppState, comments: Array<string>, bookId: string): AppState{
+//     const books = state.gameSessions
+//     const bookIndex = getIndex(books, bookId)
+//     books[bookIndex].comments = comments
+//     books[bookIndex].isLoadedComments = true
+//     return {...state, gameSessions: [...books]}
+// }
 
-function addComment(state: AppState, comment: string, bookId: string): AppState{
-    const books = state.books
-    const bookIndex = getIndex(books, bookId)
-    books[bookIndex].addComment(comment)
-    return {...state, books: [...books]}
-}
+// function addComment(state: AppState, comment: string, bookId: string): AppState{
+//     const books = state.gameSessions
+//     const bookIndex = getIndex(books, bookId)
+//     books[bookIndex].addComment(comment)
+//     return {...state, gameSessions: [...books]}
+// }
 
 function addGame(state: AppState, genre: Game): AppState {
     return {...state, games: [...state.games, genre]}
@@ -240,14 +231,14 @@ function deleteGame(state: AppState, id: string): AppState {
         }
     }
 
-    const books = state.books
+    const books = state.gameSessions
     const newBooks = []
     for (let i = 0; i< books.length; i++){
-        if (books[i].genre.id != id){
+        if (books[i].game.id != id){
             newBooks.push(books[i])
         }
     }
-    return {...state, games: newGenres, books: newBooks}
+    return {...state, games: newGenres, gameSessions: newBooks}
 }
 
 function addPlayer(state: AppState, author: Player): AppState {
@@ -274,93 +265,56 @@ function getIndex(arr: Array<Identifier>, id: string): number {
     return -1;
 }
 
-function deletePlayer(state: AppState, id: string): AppState {
-    const authors = state.players
-    const index = getIndex(authors, id)
-    const newAuthors = []
-    for (let i = 0; i < authors.length; i++) {
-        if (i != index) {
-            newAuthors.push(authors[i])
-        }
-    }
-
-    const books = state.books
-    const newBooks = []
-    for (let i = 0; i< books.length; i++){
-        if (books[i].author.id != id){
-            newBooks.push(books[i])
-        }
-    }
-    return {...state, players: [...newAuthors], books: [...newBooks], errorMessage: ""}
-    // return {
-    //     players: newAuthors,
-    //     games: state.games,
-    //     books: newBooks,
-    //     isLoadedGames: state.isLoadedGames,
-    //     isLoadedPlayers: state.isLoadedPlayers,
-    //     isLoadedTeams: state.isLoadedTeams,
-    //     isLoadedBooks: state.isLoadedBooks,
-    //     errorMessage: "",
-    //     isShowLoginDialog: state.isShowLoginDialog,
-    //     fetchProps: state.fetchProps
-    // }
-}
+// function deletePlayer(state: AppState, id: string): AppState {
+//     const authors = state.players
+//     const index = getIndex(authors, id)
+//     const newAuthors = []
+//     for (let i = 0; i < authors.length; i++) {
+//         if (i != index) {
+//             newAuthors.push(authors[i])
+//         }
+//     }
+//
+//     const books = state.gameSessions
+//     // const newBooks = []
+//     // for (let i = 0; i< books.length; i++){
+//     //     if (books[i].author.id != id){
+//     //         newBooks.push(books[i])
+//     //     }
+//     // }
+//     return {...state, players: [...newAuthors], gameSessions: [...newBooks], errorMessage: ""}
+// }
 
 function addTeam(state: AppState, team: Team): AppState {
     return {...state, teams: [...state.teams, team], errorMessage: ""}
 }
 
-function addBook(state: AppState, bookDto: BookDto): AppState {
-    const authors = state.players
-    const genres = state.games
-    const author = getAuthor(authors, bookDto.authorId)
-    const genre = getGenre(genres, bookDto.genreId)
-    const book = new Book(bookDto.id, bookDto.name, author, genre, bookDto.year)
-    return {...state, games: [...genres], players: [...authors], books: [...state.books, book], errorMessage: ""}
-    // return {
-    //     games: genres,
-    //     players: authors,
-    //     books: [...state.books, book],
-    //     isLoadedGames: state.isLoadedGames,
-    //     isLoadedPlayers: state.isLoadedPlayers,
-    //     isLoadedTeams: state.isLoadedTeams,
-    //     isLoadedBooks: state.isLoadedBooks,
-    //     errorMessage: "",
-    //     isShowLoginDialog: state.isShowLoginDialog,
-    //     fetchProps: state.fetchProps
-    // }
-}
+// function addBook(state: AppState, bookDto: GameSessionDto): AppState {
+//     const authors = state.players
+//     const genres = state.games
+//     const author = getAuthor(authors, bookDto.authorId)
+//     const genre = getGenre(genres, bookDto.genreId)
+//     const book = new GameSession(bookDto.id, bookDto.name, author, genre, bookDto.year)
+//     return {...state, games: [...genres], players: [...authors], gameSessions: [...state.gameSessions, book], errorMessage: ""}
+// }
 
-function updateBook(state: AppState, row: BookRow): AppState {
-    const authors = state.players
-    const genres = state.games
-    const books = state.books
-
-    const author = getAuthor(authors, row.author as unknown as string)
-    const genre = getGenre(genres, row.genre as unknown as string)
-
-    const bookIndex = getIndex(books, row.book.id)
-    const book = books[bookIndex]
-    book.year = Number.parseInt(row.year as unknown as string)
-    book.name = row.name
-    book.author = author
-    book.genre = genre
-
-    return {...state, games: genres, players: authors, books: [...books], errorMessage: ""}
-
-    // return {
-    //     games: genres,
-    //     players: authors,
-    //     books: [...books],
-    //     isLoadedGames: state.isLoadedGames,
-    //     isLoadedPlayers: state.isLoadedPlayers,
-    //     isLoadedTeams: state.isLoadedTeams,
-    //     isLoadedBooks: state.isLoadedBooks,
-    //     errorMessage: "",
-    //     isShowLoginDialog: state.isShowLoginDialog,
-    //     fetchProps: state.fetchProps
-    // }
-}
+// function updateBook(state: AppState, row: GameSessionRow): AppState {
+//     const authors = state.players
+//     const genres = state.games
+//     const books = state.gameSessions
+//
+//     const author = getAuthor(authors, row.author as unknown as string)
+//     const genre = getGenre(genres, row.genre as unknown as string)
+//
+//     const bookIndex = getIndex(books, row.book.id)
+//     const book = books[bookIndex]
+//     book.year = Number.parseInt(row.year as unknown as string)
+//     book.name = row.name
+//     book.author = author
+//     book.game = genre
+//
+//     return {...state, games: genres, players: authors, gameSessions: [...books], errorMessage: ""}
+// }
 
 function getAuthor(authors: Player[], id: string): Player {
     const authorIndex = getIndex(authors, id)
@@ -372,14 +326,14 @@ function getGenre(genres: Game[], id: string): Game {
     return genres[genreIndex]
 }
 
-function deleteBook(state: AppState, id: string): AppState {
-    const books = state.books
-    const index = getIndex(books, id)
-    const newBooks = []
-    for (let i = 0; i < books.length; i++) {
+function deleteGameSession(state: AppState, id: string): AppState {
+    const gameSessions = state.gameSessions
+    const index = getIndex(gameSessions, id)
+    const newSessions = []
+    for (let i = 0; i < gameSessions.length; i++) {
         if (i != index) {
-            newBooks.push(books[i])
+            newSessions.push(gameSessions[i])
         }
     }
-    return {...state, books: newBooks}
+    return {...state, gameSessions: newSessions}
 }

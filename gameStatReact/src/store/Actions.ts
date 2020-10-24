@@ -1,26 +1,26 @@
 import {Dispatch} from "react";
 import {Game} from "../model/Game";
 import {
-    ADD_PLAYER, ADD_BOOK, ADD_COMMENT,
-    ADD_GAME, DELETE_PLAYER, DELETE_BOOK,
+    ADD_PLAYER, ADD_GAME_SESSION,
+    ADD_GAME, DELETE_PLAYER, DELETE_GAME_SESSION,
     DELETE_GAME,
     LOAD_PLAYERS,
-    LOAD_BOOKS, LOAD_COMMENTS,
+    LOAD_GAME_SESSIONS,
     LOAD_GAMES, SHOW_LOGIN_DIALOG, SET_ERROR_MESSAGE,
-    UPDATE_PLAYER, UPDATE_BOOK,
+    UPDATE_PLAYER, UPDATE_GAME_SESSION,
     UPDATE_GAME, CLEAR_DATA, LOAD_TEAMS, DELETE_TEAM, ADD_TEAM
 } from "./ActionConsts";
 import {Player} from "../model/Player";
-import {BookDto} from "../model/Book";
+import {GameSessionDto} from "../model/GameSession";
 import {GameRow} from "../view/GameTable";
 import {PlayerRow} from "../view/PlayerTable";
-import {BookRow} from "../view/BookTable";
+import {GameSessionRow} from "../view/GameSessionTable";
 import {Team} from "../model/Team";
 
 const GAMES_URL = '/games'
 const PLAYERS_URL = '/players'
 const TEAMS_URL = '/teams'
-const BOOKS_URL = '/books'
+const GAME_SESSION_URL = '/results'
 
 export interface FetchProps {
     url: string
@@ -147,16 +147,16 @@ export function loadTeams(dispatch: Dispatch<any>) {
 
 }
 
-export function loadBooks(dispatch: Dispatch<any>) {
+export function loadGameSessions(dispatch: Dispatch<any>) {
     let props = {
-        url: BOOKS_URL,
+        url: GAME_SESSION_URL,
         method: 'GET',
         body: "",
         responseFunc: (response: Response) => {
             if (response.ok) {
                 response.json().then(data => {
-                    const books = data as Array<BookDto>
-                    dispatch({type: LOAD_BOOKS, data: books})
+                    const gameSessionDtos = data as Array<GameSessionDto>
+                    dispatch({type: LOAD_GAME_SESSIONS, data: gameSessionDtos})
                 })
             }
         }
@@ -293,16 +293,16 @@ export function deleteTeam(dispatch: Dispatch<any>, id: string) {
     baseFetch(dispatch, props)
 }
 
-export function addBook(dispatch: Dispatch<any>, bookRow: BookRow) {
+export function addGameSession(dispatch: Dispatch<any>, gameSessionRow: GameSessionRow) {
     let props = {
-        url: BOOKS_URL,
+        url: GAME_SESSION_URL,
         method: 'POST',
-        body: JSON.stringify({name: bookRow.name, authorId: bookRow.author, genreId: bookRow.genre, year: bookRow.year}),
+        body: JSON.stringify({name: gameSessionRow.date, authorId: gameSessionRow.date, genreId: gameSessionRow.game, year: gameSessionRow.game}),
         responseFunc: (response: Response) => {
             if (response.ok) {
                 response.json().then(data => {
-                    const bookDto = data as BookDto
-                    dispatch({type: ADD_BOOK, data: bookDto})
+                    const bookDto = data as GameSessionDto
+                    dispatch({type: ADD_GAME_SESSION, data: bookDto})
                 })
             }
         }
@@ -310,69 +310,69 @@ export function addBook(dispatch: Dispatch<any>, bookRow: BookRow) {
     baseFetch(dispatch, props)
 }
 
-export function updateBook(dispatch: Dispatch<any>, bookRow: BookRow) {
-    let props = {
-        url: BOOKS_URL + "/" + bookRow.book.id,
-        method: 'PUT',
-        body: JSON.stringify({name: bookRow.name, authorId: bookRow.author, genreId: bookRow.genre, year: bookRow.year}),
-        responseFunc: (response: Response) => {
-            if (response.ok) {
-                response.json().then(data => {
-                    if (data === true) {
-                        dispatch({type: UPDATE_BOOK, row: bookRow})
-                    }
-                })
-            }
-        }
-    }
-    baseFetch(dispatch, props)
-}
+// export function updateBook(dispatch: Dispatch<any>, bookRow: GameSessionRow) {
+//     let props = {
+//         url: GAME_SESSION_URL + "/" + bookRow.book.id,
+//         method: 'PUT',
+//         body: JSON.stringify({name: bookRow.name, authorId: bookRow.author, genreId: bookRow.genre, year: bookRow.year}),
+//         responseFunc: (response: Response) => {
+//             if (response.ok) {
+//                 response.json().then(data => {
+//                     if (data === true) {
+//                         dispatch({type: UPDATE_GAME_SESSION, row: bookRow})
+//                     }
+//                 })
+//             }
+//         }
+//     }
+//     baseFetch(dispatch, props)
+// }
 
-export function deleteBook(dispatch: Dispatch<any>, id: string) {
+export function deleteGameSession(dispatch: Dispatch<any>, id: string) {
     let props = {
-        url: BOOKS_URL + "/" + id,
+        url: GAME_SESSION_URL + "/" + id,
         method: 'DELETE',
         body: "",
         responseFunc: (response: Response) => {
             if (response.ok) {
-                dispatch({type: DELETE_BOOK, data: id})
+                dispatch({type: DELETE_GAME_SESSION, data: id})
             }
         }
     }
     baseFetch(dispatch, props)
 }
 
-export function loadComments(dispatch: Dispatch<any>, id: string) {
-    let props = {
-        url: BOOKS_URL + "/" + id + "/comments",
-        method: 'GET',
-        body: "",
-        responseFunc: (response: Response) => {
-            if (response.ok) {
-                response.json().then(data => {
-                    const comments = data as Array<string>
-                    dispatch({type: LOAD_COMMENTS, comments: comments, id: id})
-                })
-            }
-        }
-    }
-    baseFetch(dispatch, props)
-}
+// export function loadComments(dispatch: Dispatch<any>, id: string) {
+//     let props = {
+//         url: GAME_SESSION_URL + "/" + id + "/comments",
+//         method: 'GET',
+//         body: "",
+//         responseFunc: (response: Response) => {
+//             if (response.ok) {
+//                 response.json().then(data => {
+//                     const comments = data as Array<string>
+//                     dispatch({type: LOAD_COMMENTS, comments: comments, id: id})
+//                 })
+//             }
+//         }
+//     }
+//     baseFetch(dispatch, props)
+// }
 
-export function addComment(dispatch: Dispatch<any>, bookId: string, comment: string) {
-    let props = {
-        url: BOOKS_URL + "/" + bookId + "/comments",
-        method: 'POST',
-        body: JSON.stringify({comment: comment}),
-        responseFunc: (response: Response) => {
-            if (response.ok) {
-                response.json().then(data => {
-                    if (data === true) {
-                        dispatch({type: ADD_COMMENT, comment: comment, id: bookId})
-                    }
-                })
-            }
-        }
-    }
-    baseFetch(dispatch, props)
-}
+// export function addComment(dispatch: Dispatch<any>, bookId: string, comment: string) {
+//     let props = {
+//         url: GAME_SESSION_URL + "/" + bookId + "/comments",
+//         method: 'POST',
+//         body: JSON.stringify({comment: comment}),
+//         responseFunc: (response: Response) => {
+//             if (response.ok) {
+//                 response.json().then(data => {
+//                     if (data === true) {
+//                         dispatch({type: ADD_COMMENT, comment: comment, id: bookId})
+//                     }
+//                 })
+//             }
+//         }
+//     }
+//     baseFetch(dispatch, props)
+// }

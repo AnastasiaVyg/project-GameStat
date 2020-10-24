@@ -5,8 +5,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import Dialog from "@material-ui/core/Dialog";
 import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
-import {Book} from "../model/Book";
-import {addComment, FetchProps, loginFetch} from "../store/Actions";
+import {GameSession} from "../model/GameSession";
+import {FetchProps, loginFetch} from "../store/Actions";
 
 export interface LoginDialogProps {
     dispatch: Dispatch<any>

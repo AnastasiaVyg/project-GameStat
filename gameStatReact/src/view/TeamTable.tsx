@@ -1,8 +1,7 @@
-import {Player} from "../model/Player";
 import {Team} from "../model/Team";
 import {useDispatch, useSelector} from "react-redux";
 import {AppState} from "../store/Storable";
-import {deletePlayer, loadPlayers, loadTeams} from "../store/Actions";
+import {deleteTeam, loadPlayers, loadTeams} from "../store/Actions";
 import CircularIndeterminate from "./Loader";
 import MaterialTable from "material-table";
 import React from "react";
@@ -59,16 +58,16 @@ export function TeamTable() {
                     actionsColumnIndex: -1
                 }}
                 editable={{
-                    // onRowAdd: (newData) => {
+                     // onRowAdd: (newData) => {
                     //     addPlayer(dispatch, newData.name)
                     //     return Promise.resolve()
                     // },
                     // onRowUpdate: (newData, oldData) => {
-                    //     updatePlayer(dispatch, newData)
+                    //     // updatePlayer(dispatch, newData)
                     //     return Promise.resolve()
                     // },
                     onRowDelete: (oldData) => {
-                        deletePlayer(dispatch, oldData.team.id)
+                        deleteTeam(dispatch, oldData.team.id)
                         return Promise.resolve()
                     }
                 }}

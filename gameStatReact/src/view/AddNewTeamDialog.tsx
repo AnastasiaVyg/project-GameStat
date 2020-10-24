@@ -7,7 +7,6 @@ import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import {Player} from "../model/Player";
-import {Book} from "../model/Book";
 import Typography from "@material-ui/core/Typography";
 import {addTeam} from "../store/Actions";
 
@@ -97,7 +96,7 @@ export default function AddNewTeamDialog(props: NewTeamDialogProps) {
     );
 }
 
-export interface PlayersProps {
+export interface PlayersProps{
     players: Array<Player>
     handler: (event: React.ChangeEvent<{}>, value: Player | null) => void
 }
