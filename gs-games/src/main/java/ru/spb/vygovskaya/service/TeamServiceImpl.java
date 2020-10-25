@@ -43,8 +43,8 @@ public class TeamServiceImpl implements TeamService{
             Optional<Player> player = playerRepository.findById(playerInfoDto.getId());
             player.ifPresent(player1 -> {
                 teamSave.addPlayer(player1);
-                player1.addTeam(teamSave);
-                playerRepository.save(player1);
+//                player1.addTeam(teamSave);
+//                playerRepository.save(player1);
             });
         });
         Team teamSave2 = teamRepository.save(teamSave);

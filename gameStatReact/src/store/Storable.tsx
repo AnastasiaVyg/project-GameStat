@@ -10,7 +10,7 @@ import {
     DELETE_GAME_SESSION,
     DELETE_GAME, LOAD_PLAYERS, LOAD_GAME_SESSIONS, LOAD_GAMES, SET_ERROR_MESSAGE,
     UPDATE_PLAYER, UPDATE_GAME_SESSION,
-    UPDATE_GAME, SHOW_LOGIN_DIALOG, CLEAR_DATA, LOAD_TEAMS, ADD_TEAM
+    UPDATE_GAME, SHOW_LOGIN_DIALOG, CLEAR_DATA, LOAD_TEAMS, ADD_TEAM, DELETE_TEAM
 } from "./ActionConsts";
 import {GameRow} from "../view/GameTable";
 import {PlayerRow} from "../view/PlayerTable";
@@ -71,7 +71,7 @@ export function storable(state: AppState = initialState, action: any): AppState 
         }
         case LOAD_GAME_SESSIONS: {
             const booksDto = action.data as Array<GameSessionDto>
-            return loadedBooks(state, booksDto)
+            return loadedGameSessions(state, booksDto)
         }
         case ADD_GAME: {
             const game = action.data as Game
@@ -101,10 +101,14 @@ export function storable(state: AppState = initialState, action: any): AppState 
             const team = action.data as Team
             return addTeam(state, team)
         }
-        // case ADD_GAME_SESSION: {
-        //     const bookDto = action.data as GameSessionDto
-        //     return addBook(state, bookDto)
-        // }
+        case DELETE_TEAM: {
+            const id = action.data as string
+            return deleteTeam(state, id)
+        }
+        case ADD_GAME_SESSION: {
+            const gameSessionDto = action.data as GameSessionDto
+            return addGameSession(state, gameSessionDto)
+        }
         // case UPDATE_GAME_SESSION: {
         //     const bookRow = action.row as GameSessionRow
         //     return updateBook(state, bookRow)
@@ -165,34 +169,58 @@ function loadedTeams(state: AppState, teams: Array<Team>): AppState {
     return {...state, teams: teams, isLoadedTeams: true}
 }
 
-function loadedBooks(state: AppState, gameSessionsDto: Array<GameSessionDto>): AppState {
+function loadedGameSessions(state: AppState, gameSessionsDto: Array<GameSessionDto>): AppState {
     if (state.isLoadedGames === false || state.isLoadedPlayers === false || state.isLoadedTeams === false){
         return state
     }
+    // const games = state.games
+    // const players = state.players
+    // const teams = state.teams
+    const gameSessions: Array<GameSession> = []
+    gameSessionsDto.forEach(gameSessionDto => {
+        // const gameIndex = getIndex(games, gameSessionDto.gameId)
+        // const teamIndex = getIndex(teams, gameSessionDto.teamId)
+        // if (gameIndex === -1 || teamIndex === -1)
+        //     return
+        // const date = new Date(gameSessionDto.date)
+        // const results: Result [] = gameSessionDto.results.map(result => {
+        //     const playerIndex = getIndex(players, result.playerId)
+        //     // if (playerIndex === -1){
+        //     //     return
+        //     // }
+        //     return {
+        //         player: players[playerIndex],
+        //         points: result.points
+        //     }
+        // })
+        // const gameSession = new GameSession(gameSessionDto.id, date, games[gameIndex], teams[teamIndex], results)
+        const gameSession = createGameSession(state, gameSessionDto)
+        if (gameSession != null)
+            gameSessions.push(gameSession)
+    })
+    return {...state, gameSessions: [...gameSessions], isLoadedGameSessions: true}
+}
+
+function createGameSession(state: AppState, gameSessionDto: GameSessionDto): GameSession | null{
     const games = state.games
     const players = state.players
     const teams = state.teams
-    const gameSessions: Array<GameSession> = []
-    gameSessionsDto.forEach(gameSessionDto => {
-        const gameIndex = getIndex(games, gameSessionDto.gameId)
-        const teamIndex = getIndex(teams, gameSessionDto.teamId)
-        if (gameIndex === -1 || teamIndex === -1)
-            return
-        const date = new Date(gameSessionDto.date)
-        const results: Result [] = gameSessionDto.results.map(result => {
-            const playerIndex = getIndex(players, result.playerId)
-            // if (playerIndex === -1){
-            //     return
-            // }
-            return {
-                player: players[playerIndex],
-                points: result.points
-            }
-        })
-        const gameSession = new GameSession(gameSessionDto.id, date, games[gameIndex], teams[teamIndex], results)
-        gameSessions.push(gameSession)
+    const gameIndex = getIndex(games, gameSessionDto.gameId)
+    const teamIndex = getIndex(teams, gameSessionDto.teamId)
+    if (gameIndex === -1 || teamIndex === -1)
+        return null
+    const date = new Date(gameSessionDto.date)
+    const results: Result [] = gameSessionDto.results.map(result => {
+        const playerIndex = getIndex(players, result.playerId)
+        // if (playerIndex === -1){
+        //     return
+        // }
+        return {
+            player: players[playerIndex],
+            points: result.points
+        }
     })
-    return {...state, gameSessions: [...gameSessions], isLoadedGameSessions: true}
+    return new GameSession(gameSessionDto.id, date, games[gameIndex], teams[teamIndex], results)
 }
 
 // function loadedComments(state: AppState, comments: Array<string>, bookId: string): AppState{
@@ -289,14 +317,25 @@ function addTeam(state: AppState, team: Team): AppState {
     return {...state, teams: [...state.teams, team], errorMessage: ""}
 }
 
-// function addBook(state: AppState, bookDto: GameSessionDto): AppState {
-//     const authors = state.players
-//     const genres = state.games
-//     const author = getAuthor(authors, bookDto.authorId)
-//     const genre = getGenre(genres, bookDto.genreId)
-//     const book = new GameSession(bookDto.id, bookDto.name, author, genre, bookDto.year)
-//     return {...state, games: [...genres], players: [...authors], gameSessions: [...state.gameSessions, book], errorMessage: ""}
-// }
+function deleteTeam(state: AppState, id: string): AppState {
+    const teams = state.teams
+    const index = getIndex(teams, id)
+    const newTeams = []
+    for (let i = 0; i < teams.length; i++) {
+        if (i != index) {
+            newTeams.push(teams[i])
+        }
+    }
+    return {...state, teams: newTeams}
+}
+
+function addGameSession(state: AppState, gameSessionDto: GameSessionDto): AppState {
+    const gameSession = createGameSession(state, gameSessionDto)
+    if (gameSession != null){
+        state.gameSessions.push(gameSession)
+    }
+    return {...state, gameSessions: [...state.gameSessions], errorMessage: ""}
+}
 
 // function updateBook(state: AppState, row: GameSessionRow): AppState {
 //     const authors = state.players
@@ -315,16 +354,6 @@ function addTeam(state: AppState, team: Team): AppState {
 //
 //     return {...state, games: genres, players: authors, gameSessions: [...books], errorMessage: ""}
 // }
-
-function getAuthor(authors: Player[], id: string): Player {
-    const authorIndex = getIndex(authors, id)
-    return authors[authorIndex]
-}
-
-function getGenre(genres: Game[], id: string): Game {
-    const genreIndex = getIndex(genres, id)
-    return genres[genreIndex]
-}
 
 function deleteGameSession(state: AppState, id: string): AppState {
     const gameSessions = state.gameSessions

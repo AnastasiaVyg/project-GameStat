@@ -25,7 +25,7 @@ databaseChangeLog:
                       nullable: false
                       foreignKeyName: fk_session_game
                       references: games(id)
-                      deleteCascade: true
+                      deleteCascade: false
                 - column:
                     name: team_id
                     type: bigint
@@ -33,4 +33,4 @@ databaseChangeLog:
                       nullable: false
                       foreignKeyName: fk_session_team
                       references: teams(id)
-                      deleteCascade: true
+                      deleteCascade: false

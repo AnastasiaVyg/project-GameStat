@@ -5,14 +5,14 @@ import DialogContent from "@material-ui/core/DialogContent";
 import Dialog from "@material-ui/core/Dialog";
 import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
-import {GameSession, Result} from "../model/GameSession";
+import {GameSession, GameSessionDto, Result, ResultDto} from "../model/GameSession";
 import {Player} from "../model/Player";
 import {Game} from "../model/Game";
 import {Team} from "../model/Team";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Typography from "@material-ui/core/Typography";
 import {ComboBox} from "./AddNewTeamDialog";
-import {addPlayer} from "../store/Actions";
+import {addGameSession, addPlayer} from "../store/Actions";
 import {KeyboardDatePicker, MuiPickersUtilsProvider} from "@material-ui/pickers";
 import DateFnsUtils from '@date-io/date-fns';
 
@@ -23,17 +23,28 @@ export interface NewResultDialogProps {
     dispatch: Dispatch<any>
 }
 
-export interface PlayerResult {
-    player: Player
-    points: number
-}
+// export interface PlayerResult {
+//     playerId: string
+//     points: number
+// }
+
+// class InnerState {
+//     static empty = new InnerState();
+//
+//     game: Game = Game.empty;
+//     team: Team = Team.empty;
+//     date: Date = new Date();
+//     results : Array<ResultDto> = [];
+//     listPlayers: JSX.Element[] = [];
+// }
 
 export default function AddNewResultDialog(props : NewResultDialogProps) {
     const [open, setOpen] = React.useState(false)
     const [game, addGame] = React.useState(Game.empty)
     const [team, addTeam] = React.useState(Team.empty)
-    const [results, addResult] = React.useState([] as Array<PlayerResult>)
-
+    const [results, addResult] = React.useState([] as Array<ResultDto>)
+    const [selectedDate, setSelectedDate] = React.useState<Date>(new Date());
+    // const [innerState, setInnerState] = React.useState(InnerState.empty)
     const pl: JSX.Element[] = []
     const [listPlayers, addListPlayers] = React.useState(pl)
 
@@ -41,11 +52,26 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
         setOpen(true);
     };
 
-    const handleClose = () => {
-        setOpen(false);
+    const clearStates = () => {
         addListPlayers([])
         addGame(Game.empty)
         addTeam(Team.empty)
+        addResult([])
+        setSelectedDate(new Date())
+        // setInnerState(InnerState.empty)
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+        clearStates()
+    };
+
+    const handleDateChange = (date: Date | null) => {
+        if (date == null){
+            return
+        }
+        setSelectedDate(date);
+        // setInnerState({...innerState, date: date})
     };
 
     const inputText: React.RefObject<HTMLInputElement> = React.createRef()
@@ -55,6 +81,7 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
         if (value == null){
             return
         }
+        // setInnerState({...innerState, game: value });
         addGame(value)
     }
 
@@ -63,7 +90,9 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
         if (value == null){
             return
         }
+        addResult([])
         addTeam(value)
+        // setInnerState({...innerState, results: [], team: value})
         const listPlayers = value.players.map(player =>
             <li>
                 <TextField
@@ -75,16 +104,22 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
                     label={player.name + " points"}
                     type="text"
                     fullWidth
-                    onChange={event => console.log(event.target.value + "  " + event.target.id)}
+                    onChange={event => {
+                        results.push({playerId: event.target.id, points: Number(event.target.value)})
+                        addResult([... results])
+                        // setInnerState({...innerState, results: [...innerState.results]})
+                    }}
                 />
             </li>)
+        // setInnerState({...innerState, listPlayers: [...listPlayers]})
         addListPlayers([...listPlayers])
     }
 
-    const handleAddComment = () => {
-        const comment: string = inputText.current!.value
-        // addComment(props.dispatch, props.book.id, comment)
-        setOpen(false);
+    const handleAddResult = () => {
+        const dto = new GameSessionDto("-1", selectedDate.toISOString().substring(0,10), game.id, team.id, results)
+        addGameSession(props.dispatch, dto)
+        setOpen(false)
+        clearStates()
     }
 
     return (
@@ -96,7 +131,7 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
                 <DialogTitle id="create-gameResult-dialog">Add new game result</DialogTitle>
                 <DialogContent>
                     <Grid container spacing={3}>
-                        <MaterialUIPickers/>
+                        <MaterialUIPickers initialDate={selectedDate} handler={handleDateChange}/>
                         <Grid item xs={12} sm={3}>
                             <Typography color="textPrimary">Game</Typography>
                         </Grid>
@@ -121,7 +156,7 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
                     <Button onClick={handleClose} color="primary">
                         Cancel
                     </Button>
-                    <Button onClick={handleAddComment} color="primary">
+                    <Button onClick={handleAddResult} color="primary">
                         Ok
                     </Button>
                 </DialogActions>
@@ -166,15 +201,20 @@ export function TeamsComboBox(props: TeamsProps) {
     );
 }
 
-export function MaterialUIPickers() {
-    // The first commit of Material-UI
-    const [selectedDate, setSelectedDate] = React.useState<Date | null>(
-        new Date(),
-    );
+export interface PickerProps {
+    initialDate: Date | null
+    handler: (date : Date | null) => void
+}
 
-    const handleDateChange = (date: Date | null) => {
-        setSelectedDate(date);
-    };
+export function MaterialUIPickers(props: PickerProps) {
+    // The first commit of Material-UI
+    // const [selectedDate, setSelectedDate] = React.useState<Date | null>(
+    //     new Date(),
+    // );
+    //
+    // const handleDateChange = (date: Date | null) => {
+    //     setSelectedDate(date);
+    // };
 
     return (
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -186,8 +226,8 @@ export function MaterialUIPickers() {
                     margin="normal"
                     id="date-picker-inline"
                     label="Date picker inline"
-                    value={selectedDate}
-                    onChange={handleDateChange}
+                    value={props.initialDate}
+                    onChange={props.handler}
                     KeyboardButtonProps={{
                         'aria-label': 'change date',
                     }}

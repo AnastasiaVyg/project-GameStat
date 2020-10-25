@@ -54,10 +54,10 @@ export function PlayerTable() {
                     updatePlayer(dispatch, newData)
                     return Promise.resolve()
                 },
-                onRowDelete: (oldData) => {
-                    deletePlayer(dispatch, oldData.player.id)
-                    return Promise.resolve()
-                }
+                // onRowDelete: (oldData) => {
+                //     deletePlayer(dispatch, oldData.player.id)
+                //     return Promise.resolve()
+                // }
             }}
         />
     );

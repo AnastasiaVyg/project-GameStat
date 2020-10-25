@@ -20,7 +20,7 @@ databaseChangeLog:
                       nullable: false
                       foreignKeyName: fk_result_session_game
                       references: game_sessions(id)
-                      deleteCascade: false
+                      deleteCascade: true
                 - column:
                     name: player_id
                     type: bigint

@@ -9,7 +9,7 @@ public class GameResult {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id = -1;
 
-    @ManyToOne(targetEntity = GameSession.class, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
+    @ManyToOne(targetEntity = GameSession.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "game_session_id")
     private GameSession gameSession;
 

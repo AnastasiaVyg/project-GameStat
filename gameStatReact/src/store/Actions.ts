@@ -293,16 +293,16 @@ export function deleteTeam(dispatch: Dispatch<any>, id: string) {
     baseFetch(dispatch, props)
 }
 
-export function addGameSession(dispatch: Dispatch<any>, gameSessionRow: GameSessionRow) {
+export function addGameSession(dispatch: Dispatch<any>, gameSessionDto: GameSessionDto) {
     let props = {
         url: GAME_SESSION_URL,
         method: 'POST',
-        body: JSON.stringify({name: gameSessionRow.date, authorId: gameSessionRow.date, genreId: gameSessionRow.game, year: gameSessionRow.game}),
+        body: JSON.stringify(gameSessionDto),
         responseFunc: (response: Response) => {
             if (response.ok) {
                 response.json().then(data => {
-                    const bookDto = data as GameSessionDto
-                    dispatch({type: ADD_GAME_SESSION, data: bookDto})
+                    const resultDto = data as GameSessionDto
+                    dispatch({type: ADD_GAME_SESSION, data: resultDto})
                 })
             }
         }

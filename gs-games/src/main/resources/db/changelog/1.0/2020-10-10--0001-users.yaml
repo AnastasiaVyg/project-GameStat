@@ -8,7 +8,7 @@ databaseChangeLog:
               columns:
                 - column:
                     name: id
-                    type: bigint
+                    type: serial
                     autoIncrement: true
                     constraints:
                       nullable: false

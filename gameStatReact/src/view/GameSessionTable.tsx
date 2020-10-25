@@ -8,7 +8,6 @@ import {
     loadGames,
     loadPlayers,
     loadGameSessions,
-    addGameSession,
     deleteGameSession,
     loadTeams
 } from "../store/Actions";
@@ -77,7 +76,7 @@ export function GameSessionTable() {
     const gameSessionRows: GameSessionRow[] = gameSessions.map(gameSession => {
         let results = gameSession.results.map(result => result.player.name + " - " + result.points);
         return {
-            date: gameSession.date.toISOString().substring(0,10),
+            date: gameSession.date.toDateString(),//toISOString().substring(0,10),
             game: gameSession.game.name,
             team: gameSession.team.name,
             result:results.join(", "),

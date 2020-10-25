@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface GameSessionRepository extends JpaRepository<GameSession, Long> {
 
-    @EntityGraph(value = "game-session-entity-graph")
+//    @EntityGraph(value = "game-session-entity-graph")
     @Override
     List<GameSession> findAll();
 }

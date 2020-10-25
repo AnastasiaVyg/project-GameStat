@@ -7,8 +7,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "game_sessions")
-@NamedEntityGraph(name = "game-session-entity-graph",
-        attributeNodes = {@NamedAttributeNode("game"), @NamedAttributeNode("team"), @NamedAttributeNode("results")})
+//@NamedEntityGraph(name = "game-session-entity-graph",
+//        attributeNodes = {@NamedAttributeNode("game"), @NamedAttributeNode("team"), @NamedAttributeNode("results")})
 public class GameSession {
 
     @Id
