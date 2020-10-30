@@ -20,6 +20,7 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import {logoutFetch} from "./store/Actions";
 import {TeamTable} from "./view/TeamTable";
+import StatisticsTabs from "./view/statistics/StatisticsTabs";
 
 
 interface TabPanelProps {
@@ -85,6 +86,9 @@ export function App() {
                     </TabPanel>
                     <TabPanel value={value} index={3}>
                         <GameSessionTable/>
+                    </TabPanel>
+                    <TabPanel index={4} value={value}>
+                        <StatisticsTabs/>
                     </TabPanel>
                 </div>
                 </Container>

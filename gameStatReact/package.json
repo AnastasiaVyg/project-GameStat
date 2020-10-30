@@ -2,7 +2,7 @@
   "name": "gameStatReact",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:7102/",
+  "proxy": "http://localhost:8080/",
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/lab": "latest",
@@ -16,11 +16,13 @@
     "@types/react": "^16.9.44",
     "@types/react-dom": "^16.9.8",
     "@types/react-redux": "^7.1.9",
+    "@types/recharts": "^1.8.16",
     "material-table": "^1.67.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-redux": "^7.2.1",
     "react-scripts": "3.4.1",
+    "recharts": "^1.8.5",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
     "typescript": "^3.7.5"

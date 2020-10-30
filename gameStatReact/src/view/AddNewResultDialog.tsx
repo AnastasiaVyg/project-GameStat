@@ -100,12 +100,12 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
                     inputRef={inputText}
                     autoFocus
                     margin="dense"
-                    id={player.id}
+                    id={String(player.id)}
                     label={player.name + " points"}
                     type="text"
                     fullWidth
                     onChange={event => {
-                        results.push({playerId: event.target.id, points: Number(event.target.value)})
+                        results.push({playerId: Number(event.target.id), points: Number(event.target.value)})
                         addResult([... results])
                         // setInnerState({...innerState, results: [...innerState.results]})
                     }}
@@ -116,7 +116,7 @@ export default function AddNewResultDialog(props : NewResultDialogProps) {
     }
 
     const handleAddResult = () => {
-        const dto = new GameSessionDto("-1", selectedDate.toISOString().substring(0,10), game.id, team.id, results)
+        const dto = new GameSessionDto(-1, selectedDate.toISOString().substring(0,10), game.id, team.id, results)
         addGameSession(props.dispatch, dto)
         setOpen(false)
         clearStates()
@@ -207,15 +207,6 @@ export interface PickerProps {
 }
 
 export function MaterialUIPickers(props: PickerProps) {
-    // The first commit of Material-UI
-    // const [selectedDate, setSelectedDate] = React.useState<Date | null>(
-    //     new Date(),
-    // );
-    //
-    // const handleDateChange = (date: Date | null) => {
-    //     setSelectedDate(date);
-    // };
-
     return (
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Grid container justify="space-around">

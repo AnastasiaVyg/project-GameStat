@@ -1,6 +1,7 @@
 package ru.spb.vygovskaya.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 import ru.spb.vygovskaya.dto.PlayerDto;
 import ru.spb.vygovskaya.service.PlayerService;
@@ -33,7 +34,13 @@ public class PlayerController {
     }
 
     @DeleteMapping("/players/{id}")
-    public void deletePlayer(@PathVariable Long id){
-        playerService.deleteById(id);
+    public boolean deletePlayer(@PathVariable Long id){
+        try {
+            playerService.deleteById(id);
+            return true;
+        }catch (DataIntegrityViolationException e){
+            e.printStackTrace();
+        }
+        return false;
     }
 }

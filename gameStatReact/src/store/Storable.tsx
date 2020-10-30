@@ -5,18 +5,38 @@ import {Team} from "../model/Team";
 import {
     ADD_PLAYER,
     ADD_GAME_SESSION,
-    ADD_GAME, CLEAR_ERROR_MESSAGE,
+    ADD_GAME,
+    CLEAR_ERROR_MESSAGE,
     DELETE_PLAYER,
     DELETE_GAME_SESSION,
-    DELETE_GAME, LOAD_PLAYERS, LOAD_GAME_SESSIONS, LOAD_GAMES, SET_ERROR_MESSAGE,
-    UPDATE_PLAYER, UPDATE_GAME_SESSION,
-    UPDATE_GAME, SHOW_LOGIN_DIALOG, CLEAR_DATA, LOAD_TEAMS, ADD_TEAM, DELETE_TEAM
+    DELETE_GAME,
+    LOAD_PLAYERS,
+    LOAD_GAME_SESSIONS,
+    LOAD_GAMES,
+    SET_ERROR_MESSAGE,
+    UPDATE_PLAYER,
+    UPDATE_GAME_SESSION,
+    UPDATE_GAME,
+    SHOW_LOGIN_DIALOG,
+    CLEAR_DATA,
+    LOAD_TEAMS,
+    ADD_TEAM,
+    DELETE_TEAM,
+    STATISTICS_PLAYER,
+    STATISTICS_SESSION_MONTH
 } from "./ActionConsts";
 import {GameRow} from "../view/GameTable";
 import {PlayerRow} from "../view/PlayerTable";
 import {GameSessionRow} from "../view/GameSessionTable";
 import {FetchProps} from "./Actions";
 import {TeamRow} from "../view/TeamTable";
+import {GameSessionMonth, GameSessionMonthDto} from "../model/GameSessionMonth";
+
+export interface StatisticsPlayer {
+    results: Array<GameSession>
+    player: Player
+
+}
 
 export interface AppState {
     games: Array<Game>
@@ -30,6 +50,9 @@ export interface AppState {
     errorMessage: string
     isShowLoginDialog: boolean
     fetchProps: FetchProps
+    statisticsPlayer: StatisticsPlayer
+    statisticsMonth: Array<GameSessionMonth>
+    isLoadedStatisticsMonth: boolean
 }
 
 const initialState: AppState = {
@@ -43,7 +66,10 @@ const initialState: AppState = {
     isLoadedGameSessions: false,
     errorMessage: "",
     isShowLoginDialog: false,
-    fetchProps: {url: "", method:"", body:"", responseFunc: r => {} }
+    fetchProps: {url: "", method:"", body:"", responseFunc: r => {} },
+    statisticsPlayer: {results:[], player: Player.empty},
+    statisticsMonth: [],
+    isLoadedStatisticsMonth: false
 }
 
 export function storable(state: AppState = initialState, action: any): AppState {
@@ -82,7 +108,7 @@ export function storable(state: AppState = initialState, action: any): AppState 
             return updateGame(state, gameRow.game.id, gameRow.name)
         }
         case DELETE_GAME: {
-            const id = action.data as string
+            const id = action.data as number
             return deleteGame(state, id)
         }
         case ADD_PLAYER: {
@@ -93,16 +119,16 @@ export function storable(state: AppState = initialState, action: any): AppState 
             const playerRow = action.row as PlayerRow
             return updatePlayer(state, playerRow.player.id, playerRow.name)
         }
-        // case DELETE_PLAYER: {
-        //     const id = action.data as string
-        //     return deletePlayer(state, id)
-        // }
+        case DELETE_PLAYER: {
+            const id = action.data as number
+            return deletePlayer(state, id)
+        }
         case ADD_TEAM: {
             const team = action.data as Team
             return addTeam(state, team)
         }
         case DELETE_TEAM: {
-            const id = action.data as string
+            const id = action.data as number
             return deleteTeam(state, id)
         }
         case ADD_GAME_SESSION: {
@@ -114,7 +140,7 @@ export function storable(state: AppState = initialState, action: any): AppState 
         //     return updateBook(state, bookRow)
         // }
         case DELETE_GAME_SESSION: {
-            const id = action.data as string
+            const id = action.data as number
             return deleteGameSession(state, id)
         }
         case SET_ERROR_MESSAGE: {
@@ -123,6 +149,15 @@ export function storable(state: AppState = initialState, action: any): AppState 
         }
         case CLEAR_ERROR_MESSAGE: {
             return setErrorMessage(state, "")
+        }
+        case STATISTICS_PLAYER: {
+            const gameSessionsDto = action.data as Array<GameSessionDto>
+            const playerId = action.playerId
+            return setStatisticsPlayer(state, gameSessionsDto, playerId)
+        }
+        case STATISTICS_SESSION_MONTH: {
+            const gameSessionMonthDtos = action.data as Array<GameSessionMonthDto>
+            return setStatisticsGameSessionMonth(state, gameSessionMonthDtos)
         }
         default:
             return state
@@ -149,7 +184,10 @@ function clearData(state: AppState): AppState {
         isLoadedGameSessions: false,
         errorMessage: "",
         isShowLoginDialog: state.isShowLoginDialog,
-        fetchProps: state.fetchProps
+        fetchProps: state.fetchProps,
+        statisticsPlayer: {results:[], player: Player.empty},
+        statisticsMonth: [],
+        isLoadedStatisticsMonth: false
     }
 }
 
@@ -173,27 +211,8 @@ function loadedGameSessions(state: AppState, gameSessionsDto: Array<GameSessionD
     if (state.isLoadedGames === false || state.isLoadedPlayers === false || state.isLoadedTeams === false){
         return state
     }
-    // const games = state.games
-    // const players = state.players
-    // const teams = state.teams
     const gameSessions: Array<GameSession> = []
     gameSessionsDto.forEach(gameSessionDto => {
-        // const gameIndex = getIndex(games, gameSessionDto.gameId)
-        // const teamIndex = getIndex(teams, gameSessionDto.teamId)
-        // if (gameIndex === -1 || teamIndex === -1)
-        //     return
-        // const date = new Date(gameSessionDto.date)
-        // const results: Result [] = gameSessionDto.results.map(result => {
-        //     const playerIndex = getIndex(players, result.playerId)
-        //     // if (playerIndex === -1){
-        //     //     return
-        //     // }
-        //     return {
-        //         player: players[playerIndex],
-        //         points: result.points
-        //     }
-        // })
-        // const gameSession = new GameSession(gameSessionDto.id, date, games[gameIndex], teams[teamIndex], results)
         const gameSession = createGameSession(state, gameSessionDto)
         if (gameSession != null)
             gameSessions.push(gameSession)
@@ -242,38 +261,31 @@ function addGame(state: AppState, genre: Game): AppState {
     return {...state, games: [...state.games, genre]}
 }
 
-function updateGame(state: AppState, id: string, name: string): AppState {
+function updateGame(state: AppState, id: number, name: string): AppState {
     const games = state.games
     const index = getIndex(games, id)
     games[index].name = name
     return {...state, games: [...games]}
 }
 
-function deleteGame(state: AppState, id: string): AppState {
+function deleteGame(state: AppState, id: number): AppState {
     const games = state.games
     const index = getIndex(games, id)
-    const newGenres = []
+    const newGames = []
     for (let i = 0; i < games.length; i++) {
         if (i != index) {
-            newGenres.push(games[i])
+            newGames.push(games[i])
         }
     }
 
-    const books = state.gameSessions
-    const newBooks = []
-    for (let i = 0; i< books.length; i++){
-        if (books[i].game.id != id){
-            newBooks.push(books[i])
-        }
-    }
-    return {...state, games: newGenres, gameSessions: newBooks}
+    return {...state, games: newGames}
 }
 
 function addPlayer(state: AppState, author: Player): AppState {
     return {...state, players: [...state.players, author]}
 }
 
-function updatePlayer(state: AppState, id: string, name: string): AppState {
+function updatePlayer(state: AppState, id: number, name: string): AppState {
     const players = state.players
     const index = getIndex(players, id)
     players[index].name = name
@@ -281,10 +293,10 @@ function updatePlayer(state: AppState, id: string, name: string): AppState {
 }
 
 interface Identifier {
-    id: string
+    id: number
 }
 
-function getIndex(arr: Array<Identifier>, id: string): number {
+function getIndex(arr: Array<Identifier>, id: number): number {
     for (let i = 0; i < arr.length; i++) {
         if (arr[i].id === id) {
             return i;
@@ -293,31 +305,23 @@ function getIndex(arr: Array<Identifier>, id: string): number {
     return -1;
 }
 
-// function deletePlayer(state: AppState, id: string): AppState {
-//     const authors = state.players
-//     const index = getIndex(authors, id)
-//     const newAuthors = []
-//     for (let i = 0; i < authors.length; i++) {
-//         if (i != index) {
-//             newAuthors.push(authors[i])
-//         }
-//     }
-//
-//     const books = state.gameSessions
-//     // const newBooks = []
-//     // for (let i = 0; i< books.length; i++){
-//     //     if (books[i].author.id != id){
-//     //         newBooks.push(books[i])
-//     //     }
-//     // }
-//     return {...state, players: [...newAuthors], gameSessions: [...newBooks], errorMessage: ""}
-// }
+function deletePlayer(state: AppState, id: number): AppState {
+    const players = state.players
+    const index = getIndex(players, id)
+    const newPlayers = []
+    for (let i = 0; i < players.length; i++) {
+        if (i != index) {
+            newPlayers.push(players[i])
+        }
+    }
+    return {...state, players: [...newPlayers], errorMessage: ""}
+}
 
 function addTeam(state: AppState, team: Team): AppState {
     return {...state, teams: [...state.teams, team], errorMessage: ""}
 }
 
-function deleteTeam(state: AppState, id: string): AppState {
+function deleteTeam(state: AppState, id: number): AppState {
     const teams = state.teams
     const index = getIndex(teams, id)
     const newTeams = []
@@ -334,7 +338,7 @@ function addGameSession(state: AppState, gameSessionDto: GameSessionDto): AppSta
     if (gameSession != null){
         state.gameSessions.push(gameSession)
     }
-    return {...state, gameSessions: [...state.gameSessions], errorMessage: ""}
+    return {...state, gameSessions: [...state.gameSessions], errorMessage: "", isLoadedStatisticsMonth: false}
 }
 
 // function updateBook(state: AppState, row: GameSessionRow): AppState {
@@ -355,7 +359,7 @@ function addGameSession(state: AppState, gameSessionDto: GameSessionDto): AppSta
 //     return {...state, games: genres, players: authors, gameSessions: [...books], errorMessage: ""}
 // }
 
-function deleteGameSession(state: AppState, id: string): AppState {
+function deleteGameSession(state: AppState, id: number): AppState {
     const gameSessions = state.gameSessions
     const index = getIndex(gameSessions, id)
     const newSessions = []
@@ -364,5 +368,28 @@ function deleteGameSession(state: AppState, id: string): AppState {
             newSessions.push(gameSessions[i])
         }
     }
-    return {...state, gameSessions: newSessions}
+    return {...state, gameSessions: newSessions, isLoadedStatisticsMonth: false}
+}
+
+function setStatisticsPlayer(state: AppState, gameSessionsDto: Array<GameSessionDto>, playerId: number): AppState {
+    const gameSessions: Array<GameSession> = []
+    gameSessionsDto.forEach(gameSessionDto => {
+        const gameSession = createGameSession(state, gameSessionDto)
+        if (gameSession != null)
+            gameSessions.push(gameSession)
+    })
+    const players = state.players
+    const index = getIndex(players, playerId);
+    return {...state, statisticsPlayer: {results: [...gameSessions], player: players[index]}}
+}
+
+function setStatisticsGameSessionMonth(state: AppState, gameSessionMonthDtos: Array<GameSessionMonthDto>): AppState {
+    const games = state.games
+    const gameSessionMonths: Array<GameSessionMonth> = []
+    gameSessionMonthDtos.forEach(gameSessionMonthDto => {
+        const index = getIndex(games, gameSessionMonthDto.gameId)
+        const game = games[index]
+        gameSessionMonths.push(new GameSessionMonth(gameSessionMonthDto.month, game,  gameSessionMonthDto.count))
+    })
+    return {...state, statisticsMonth: [...gameSessionMonths], isLoadedStatisticsMonth: true}
 }

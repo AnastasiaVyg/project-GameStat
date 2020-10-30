@@ -8,7 +8,7 @@ import {
     LOAD_GAME_SESSIONS,
     LOAD_GAMES, SHOW_LOGIN_DIALOG, SET_ERROR_MESSAGE,
     UPDATE_PLAYER, UPDATE_GAME_SESSION,
-    UPDATE_GAME, CLEAR_DATA, LOAD_TEAMS, DELETE_TEAM, ADD_TEAM
+    UPDATE_GAME, CLEAR_DATA, LOAD_TEAMS, DELETE_TEAM, ADD_TEAM, STATISTICS_PLAYER, STATISTICS_SESSION_MONTH
 } from "./ActionConsts";
 import {Player} from "../model/Player";
 import {GameSessionDto} from "../model/GameSession";
@@ -16,11 +16,14 @@ import {GameRow} from "../view/GameTable";
 import {PlayerRow} from "../view/PlayerTable";
 import {GameSessionRow} from "../view/GameSessionTable";
 import {Team} from "../model/Team";
+import {GameSessionMonthDto} from "../model/GameSessionMonth";
 
-const GAMES_URL = '/games'
-const PLAYERS_URL = '/players'
-const TEAMS_URL = '/teams'
-const GAME_SESSION_URL = '/results'
+const GAMES_URL = '/gameserver/games'
+const PLAYERS_URL = '/gameserver/players'
+const TEAMS_URL = '/gameserver/teams'
+const GAME_SESSION_URL = '/gameserver/results'
+const STATISTICS_PLAYER_URL = '/gameserver/statistics/player'
+const STATISTICS_POPULAR_GAMES_URL = '/gameserver/statistics/games'
 
 export interface FetchProps {
     url: string
@@ -199,14 +202,21 @@ export function updateGame(dispatch: Dispatch<any>, gameRow: GameRow) {
     baseFetch(dispatch, props)
 }
 
-export function deleteGame(dispatch: Dispatch<any>, id: string) {
+export function deleteGame(dispatch: Dispatch<any>, id: number) {
     let props = {
         url: GAMES_URL + "/" + id,
         method: 'DELETE',
         body: "",
         responseFunc: (response: Response) => {
             if (response.ok) {
-                dispatch({type: DELETE_GAME, data: id})
+                response.text().then(value => {
+                    if (value == "true"){
+                        dispatch({type: DELETE_GAME, data: id})
+                    } else {
+                        dispatch({type: SET_ERROR_MESSAGE, message: "Нельзя удалить игру, для которой есть результаты"})
+                    }
+                })
+
             }
         }
     }
@@ -248,14 +258,21 @@ export function updatePlayer(dispatch: Dispatch<any>, playerRow: PlayerRow) {
     baseFetch(dispatch, props)
 }
 
-export function deletePlayer(dispatch: Dispatch<any>, id: string) {
+export function deletePlayer(dispatch: Dispatch<any>, id: number) {
     let props = {
         url: PLAYERS_URL + "/" + id,
         method: 'DELETE',
         body: "",
         responseFunc: (response: Response) => {
             if (response.ok) {
-                dispatch({type: DELETE_PLAYER, data: id})
+                response.text().then(value => {
+                    if (value == "true") {
+                        dispatch({type: DELETE_PLAYER, data: id})
+                    } else {
+                        dispatch({type: SET_ERROR_MESSAGE,
+                            message: "Нельзя удалить игрока, состоящего в команде и для которой есть результаты"})
+                    }
+                })
             }
         }
     }
@@ -279,7 +296,7 @@ export function addTeam(dispatch: Dispatch<any>, nameTeam: string, players: Arra
     baseFetch(dispatch, props)
 }
 
-export function deleteTeam(dispatch: Dispatch<any>, id: string) {
+export function deleteTeam(dispatch: Dispatch<any>, id: number) {
     let props = {
         url: TEAMS_URL + "/" + id,
         method: 'DELETE',
@@ -328,7 +345,7 @@ export function addGameSession(dispatch: Dispatch<any>, gameSessionDto: GameSess
 //     baseFetch(dispatch, props)
 // }
 
-export function deleteGameSession(dispatch: Dispatch<any>, id: string) {
+export function deleteGameSession(dispatch: Dispatch<any>, id: number) {
     let props = {
         url: GAME_SESSION_URL + "/" + id,
         method: 'DELETE',
@@ -342,37 +359,36 @@ export function deleteGameSession(dispatch: Dispatch<any>, id: string) {
     baseFetch(dispatch, props)
 }
 
-// export function loadComments(dispatch: Dispatch<any>, id: string) {
-//     let props = {
-//         url: GAME_SESSION_URL + "/" + id + "/comments",
-//         method: 'GET',
-//         body: "",
-//         responseFunc: (response: Response) => {
-//             if (response.ok) {
-//                 response.json().then(data => {
-//                     const comments = data as Array<string>
-//                     dispatch({type: LOAD_COMMENTS, comments: comments, id: id})
-//                 })
-//             }
-//         }
-//     }
-//     baseFetch(dispatch, props)
-// }
+export function getStatisticsPlayer(dispatch: Dispatch<any>, id: number) {
+    let props = {
+        url: STATISTICS_PLAYER_URL + "/" + id,
+        method: 'GET',
+        body: "",
+        responseFunc: (response: Response) => {
+            if (response.ok) {
+                response.json().then(data => {
+                    const gameSessionDtos = data as Array<GameSessionDto>
+                    dispatch({type: STATISTICS_PLAYER, data: gameSessionDtos, playerId: id})
+                })
+            }
+        }
+    }
+    baseFetch(dispatch, props)
+}
 
-// export function addComment(dispatch: Dispatch<any>, bookId: string, comment: string) {
-//     let props = {
-//         url: GAME_SESSION_URL + "/" + bookId + "/comments",
-//         method: 'POST',
-//         body: JSON.stringify({comment: comment}),
-//         responseFunc: (response: Response) => {
-//             if (response.ok) {
-//                 response.json().then(data => {
-//                     if (data === true) {
-//                         dispatch({type: ADD_COMMENT, comment: comment, id: bookId})
-//                     }
-//                 })
-//             }
-//         }
-//     }
-//     baseFetch(dispatch, props)
-// }
+export function getStatisticsPopularGames(dispatch: Dispatch<any>) {
+    let props = {
+        url: STATISTICS_POPULAR_GAMES_URL,
+        method: 'GET',
+        body: "",
+        responseFunc: (response: Response) => {
+            if (response.ok) {
+                response.json().then(data => {
+                    const gameSessionMonthDtos = data as Array<GameSessionMonthDto>
+                    dispatch({type: STATISTICS_SESSION_MONTH, data: gameSessionMonthDtos})
+                })
+            }
+        }
+    }
+    baseFetch(dispatch, props)
+}

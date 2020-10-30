@@ -1,9 +1,9 @@
 
 export class Game {
-    static readonly empty = new Game("-1", "")
+    static readonly empty = new Game(-1, "")
     private _name: string
 
-    constructor(readonly id: string, name: string) {
+    constructor(readonly id: number, name: string) {
          this._name = name
     }
 

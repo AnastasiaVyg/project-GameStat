@@ -15,5 +15,7 @@ spring:
     show-sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+
 server:
   port: 7102
+

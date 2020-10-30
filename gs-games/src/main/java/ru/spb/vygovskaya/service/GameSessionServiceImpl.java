@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.spb.vygovskaya.domain.*;
 import ru.spb.vygovskaya.dto.GameSessionDto;
+import ru.spb.vygovskaya.dto.GameSessionMonthDto;
 import ru.spb.vygovskaya.repository.*;
 
 import java.util.ArrayList;

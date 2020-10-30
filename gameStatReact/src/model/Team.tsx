@@ -1,11 +1,11 @@
 import {Player} from "./Player";
 
 export class Team {
-    static readonly empty = new Team("-1", "", [])
+    static readonly empty = new Team(-1, "", [])
     private _name: string
     private _players: Array<Player>
 
-    constructor(readonly id: string, name: string, players: Array<Player>) {
+    constructor(readonly id: number, name: string, players: Array<Player>) {
         this.id = id
         this._name = name
         this._players = players
@@ -29,7 +29,7 @@ export class Team {
 
     getPlayersInfo(): string {
         let names = this._players.map(player => player.name);
-        console.log("names- " +names)
+        // console.log("names- " +names)
         return names.join(", ")
     }
 }

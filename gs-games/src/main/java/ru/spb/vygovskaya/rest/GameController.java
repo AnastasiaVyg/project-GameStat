@@ -1,10 +1,13 @@
 package ru.spb.vygovskaya.rest;
 
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 import ru.spb.vygovskaya.domain.Game;
 import ru.spb.vygovskaya.service.GameService;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -33,7 +36,13 @@ public class GameController {
     }
 
     @DeleteMapping("/games/{id}")
-    public void deleteGame(@PathVariable Long id){
-        gameService.deleteById(id);
+    public boolean deleteGame(@PathVariable Long id){
+        try {
+            gameService.deleteById(id);
+            return true;
+        } catch (DataIntegrityViolationException e){
+            e.printStackTrace();
+        }
+        return false;
     }
 }

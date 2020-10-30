@@ -1,4 +1,7 @@
 spring:
+  logging:
+    level:
+      root=TRACE
   security:
     oauth2:
       client:
@@ -6,7 +9,12 @@ spring:
           google:
             clientId: 1087692253590-0c5ims6kmt1edhj75tos3kq5mjsogf8h.apps.googleusercontent.com
             clientSecret: Ne57bqZsCKBMxek6FQDqTn3l
+
   application:
     name: gs-users
 server:
   port: 7101
+  servlet:
+    context-path: /userserver
+
+

@@ -1,7 +1,7 @@
 package ru.spb.vygovskaya.service;
 
 import ru.spb.vygovskaya.dto.GameSessionDto;
-import ru.spb.vygovskaya.dto.TeamDto;
+import ru.spb.vygovskaya.dto.GameSessionMonthDto;
 
 import java.util.List;
 

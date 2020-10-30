@@ -1,6 +1,7 @@
 package ru.spb.vygovskaya.security;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
@@ -16,5 +17,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .and()
                 .anonymous().disable()
                 .oauth2Login();
+                //.defaultSuccessUrl("/userserver/user");
+
+//                .authorizationEndpoint().baseUri("/userserver/oauth2/authorization");
+    }
+
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.debug(true);
     }
 }

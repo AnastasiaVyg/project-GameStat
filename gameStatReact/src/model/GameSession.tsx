@@ -8,14 +8,14 @@ export interface Result {
 }
 
 export class GameSession {
-    static readonly empty = new GameSession("-1", new Date, Game.empty, Team.empty, [])
+    static readonly empty = new GameSession(-1, new Date, Game.empty, Team.empty, [])
     private _date: Date
     private _game: Game
     private _team: Team
     private _results: Array<Result>
 
 
-    constructor(readonly id: string, date: Date, game: Game, team: Team, results: Array<Result>) {
+    constructor(readonly id: number, date: Date, game: Game, team: Team, results: Array<Result>) {
         this._date = date;
         this._game = game;
         this._team = team;
@@ -57,12 +57,12 @@ export class GameSession {
 }
 
 export interface ResultDto{
-    playerId: string
+    playerId: number
     points: number
 }
 
 export class GameSessionDto {
-    constructor(readonly id: string, readonly date: string, readonly gameId: string, readonly teamId: string, readonly results: Array<ResultDto>) {
+    constructor(readonly id: number, readonly date: string, readonly gameId: number, readonly teamId: number, readonly results: Array<ResultDto>) {
     }
 
 }
