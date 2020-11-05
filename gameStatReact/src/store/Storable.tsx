@@ -23,7 +23,7 @@ import {
     ADD_TEAM,
     DELETE_TEAM,
     STATISTICS_PLAYER,
-    STATISTICS_SESSION_MONTH
+    STATISTICS_SESSION_MONTH, AUTHENTICATION
 } from "./ActionConsts";
 import {GameRow} from "../view/GameTable";
 import {PlayerRow} from "../view/PlayerTable";
@@ -36,6 +36,13 @@ export interface StatisticsPlayer {
     results: Array<GameSession>
     player: Player
 
+}
+
+export interface UserData {
+    name: String
+    id: number
+    key: string
+    isAuthorization: boolean
 }
 
 export interface AppState {
@@ -53,6 +60,7 @@ export interface AppState {
     statisticsPlayer: StatisticsPlayer
     statisticsMonth: Array<GameSessionMonth>
     isLoadedStatisticsMonth: boolean
+    userData: UserData
 }
 
 const initialState: AppState = {
@@ -66,19 +74,19 @@ const initialState: AppState = {
     isLoadedGameSessions: false,
     errorMessage: "",
     isShowLoginDialog: false,
-    fetchProps: {url: "", method:"", body:"", responseFunc: r => {} },
+    fetchProps: {url: "", method:"", body:"", responseFunc: r => {}, userId: -1, userKey: ""},
     statisticsPlayer: {results:[], player: Player.empty},
     statisticsMonth: [],
-    isLoadedStatisticsMonth: false
+    isLoadedStatisticsMonth: false,
+    userData: {name: "", id: -1, key: "", isAuthorization: false}
 }
 
 export function storable(state: AppState = initialState, action: any): AppState {
 
     switch (action.type) {
-        case SHOW_LOGIN_DIALOG: {
-            const isShowLogin = action.data as boolean
-            const fetchProps = action.fetchProps as FetchProps
-            return setShowLoginDialog(state, isShowLogin, fetchProps)
+        case AUTHENTICATION: {
+            const userData = action.data as UserData
+            return setAuthentication(state, userData)
         }
         case CLEAR_DATA: {
             return clearData(state)
@@ -164,12 +172,8 @@ export function storable(state: AppState = initialState, action: any): AppState 
     }
 }
 
-function setShowLoginDialog(state: AppState, isShowLogin: boolean, fetchProps: FetchProps): AppState {
-    let newFetchProps = state.fetchProps
-    if (fetchProps != null){
-        newFetchProps = fetchProps
-    }
-    return {...state, isShowLoginDialog: isShowLogin, fetchProps: newFetchProps}
+function setAuthentication(state:AppState, userData: UserData): AppState {
+    return {...state, userData: userData};
 }
 
 function clearData(state: AppState): AppState {
@@ -187,7 +191,8 @@ function clearData(state: AppState): AppState {
         fetchProps: state.fetchProps,
         statisticsPlayer: {results:[], player: Player.empty},
         statisticsMonth: [],
-        isLoadedStatisticsMonth: false
+        isLoadedStatisticsMonth: false,
+        userData: {name: "", id: -1, key: "", isAuthorization: false}
     }
 }
 
@@ -241,21 +246,6 @@ function createGameSession(state: AppState, gameSessionDto: GameSessionDto): Gam
     })
     return new GameSession(gameSessionDto.id, date, games[gameIndex], teams[teamIndex], results)
 }
-
-// function loadedComments(state: AppState, comments: Array<string>, bookId: string): AppState{
-//     const books = state.gameSessions
-//     const bookIndex = getIndex(books, bookId)
-//     books[bookIndex].comments = comments
-//     books[bookIndex].isLoadedComments = true
-//     return {...state, gameSessions: [...books]}
-// }
-
-// function addComment(state: AppState, comment: string, bookId: string): AppState{
-//     const books = state.gameSessions
-//     const bookIndex = getIndex(books, bookId)
-//     books[bookIndex].addComment(comment)
-//     return {...state, gameSessions: [...books]}
-// }
 
 function addGame(state: AppState, genre: Game): AppState {
     return {...state, games: [...state.games, genre]}
@@ -340,24 +330,6 @@ function addGameSession(state: AppState, gameSessionDto: GameSessionDto): AppSta
     }
     return {...state, gameSessions: [...state.gameSessions], errorMessage: "", isLoadedStatisticsMonth: false}
 }
-
-// function updateBook(state: AppState, row: GameSessionRow): AppState {
-//     const authors = state.players
-//     const genres = state.games
-//     const books = state.gameSessions
-//
-//     const author = getAuthor(authors, row.author as unknown as string)
-//     const genre = getGenre(genres, row.genre as unknown as string)
-//
-//     const bookIndex = getIndex(books, row.book.id)
-//     const book = books[bookIndex]
-//     book.year = Number.parseInt(row.year as unknown as string)
-//     book.name = row.name
-//     book.author = author
-//     book.game = genre
-//
-//     return {...state, games: genres, players: authors, gameSessions: [...books], errorMessage: ""}
-// }
 
 function deleteGameSession(state: AppState, id: number): AppState {
     const gameSessions = state.gameSessions

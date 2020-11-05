@@ -18,10 +18,11 @@ const columns = [
 export function GameTable() {
     const isLoaded = useSelector((state: AppState) => state.isLoadedGames)
     const games = useSelector((state: AppState) => state.games)
+    const userData = useSelector((state: AppState) => state.userData)
     const dispatch = useDispatch()
 
     if (!isLoaded){
-        loadGames(dispatch)
+        loadGames(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )

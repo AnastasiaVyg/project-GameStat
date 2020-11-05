@@ -26,18 +26,18 @@ export default function PopularGamesTab(){
     }
 
     const months = [
-        {name: 'January', number: 1},
-        {name: 'February', number: 2},
-        {name: 'March', number: 3},
-        {name: 'April', number: 4},
-        {name: 'May', number: 5},
-        {name: 'June', number: 6},
-        {name: 'July', number: 7},
-        {name: 'August', number: 8},
-        {name: 'September', number: 9},
-        {name: 'October', number: 10},
-        {name: 'November', number: 11},
-        {name: 'December', number: 12}
+        {name: 'January'},
+        {name: 'February'},
+        {name: 'March'},
+        {name: 'April'},
+        {name: 'May'},
+        {name: 'June'},
+        {name: 'July'},
+        {name: 'August'},
+        {name: 'September'},
+        {name: 'October'},
+        {name: 'November'},
+        {name: 'December'}
     ]
 
     const results: Array<MonthResults> = []
@@ -60,30 +60,6 @@ export default function PopularGamesTab(){
         })
         dataStat.push(jsonData)
     })
-
-    const data = [
-        {
-            name: 'Page A', uv: 4000, pv: 2400,
-        },
-        {
-            name: 'Page B', uv: 3000, pv: 1398,
-        },
-        {
-            name: 'Page C', uv: 2000, pv: 9800,
-        },
-        {
-            name: 'Page D', uv: 2780, pv: 3908,
-        },
-        {
-            name: 'Page E', uv: 1890, pv: 4800,
-        },
-        {
-            name: 'Page F', uv: 2390, pv: 3800,
-        },
-        {
-            name: 'Page G', uv: 3490, pv: 4300,
-        },
-    ];
 
     return(
         <BarChart

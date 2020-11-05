@@ -16,6 +16,7 @@ export default function PlayerStatisticsTabs() {
     const players =  useSelector((state :AppState)  => {return state.players})
     const gameSessions = useSelector((state: AppState) => {return state.statisticsPlayer.results})
     const player = useSelector((state: AppState) => {return state.statisticsPlayer.player})
+    const userData = useSelector((state: AppState) => state.userData)
     const dispatch = useDispatch()
 
     const handleStatisticsToPlayer = (event: React.ChangeEvent<{}>, value: Player | null) => {
@@ -25,19 +26,19 @@ export default function PlayerStatisticsTabs() {
     }
 
     if (!isLoadedGames){
-        loadGames(dispatch)
+        loadGames(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
     }
     if (!isLoadedPlayers){
-        loadPlayers(dispatch)
+        loadPlayers(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
     }
     if (!isLoadedTeams){
-        loadTeams(dispatch)
+        loadTeams(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )

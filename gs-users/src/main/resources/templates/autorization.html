@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Autorization info</title>
+</head>
+<body>
+hgjgj
+<script th:inline="javascript">
+    const tokenInfo = JSON.parse(`[(${payload})]`)
+    console.log("send token info", tokenInfo)
+    opener.postMessage(tokenInfo,"*")
+    window.close()
+</script>
+</body>
+</html>

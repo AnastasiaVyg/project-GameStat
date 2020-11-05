@@ -12,9 +12,30 @@ spring:
 
   application:
     name: gs-users
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/games?currentSchema=schema_users
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+    initialization-mode: always
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      default_schema: schema_users
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+
 server:
   port: 7101
   servlet:
     context-path: /userserver
+
+auth:
+  key: 4ea813db-ccbd-47df-b0c7-d2cd7e845658
+
+
 
 

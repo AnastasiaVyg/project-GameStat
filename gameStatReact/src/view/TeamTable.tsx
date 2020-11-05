@@ -23,17 +23,18 @@ export function TeamTable() {
     const teams =  useSelector((state :AppState)  => {return state.teams})
     const isLoadedPlayers = useSelector((state: AppState) => {return state.isLoadedPlayers})
     const players = useSelector((state :AppState) => {return state.players})
+    const userData = useSelector((state: AppState) => state.userData)
     const dispatch = useDispatch()
 
     if (!isLoadedTeams){
-        loadTeams(dispatch)
+        loadTeams(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
     }
 
     if (!isLoadedPlayers){
-        loadPlayers(dispatch)
+        loadPlayers(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
@@ -58,14 +59,6 @@ export function TeamTable() {
                     actionsColumnIndex: -1
                 }}
                 editable={{
-                     // onRowAdd: (newData) => {
-                    //     addPlayer(dispatch, newData.name)
-                    //     return Promise.resolve()
-                    // },
-                    // onRowUpdate: (newData, oldData) => {
-                    //     // updatePlayer(dispatch, newData)
-                    //     return Promise.resolve()
-                    // },
                     onRowDelete: (oldData) => {
                         deleteTeam(dispatch, oldData.team.id)
                         return Promise.resolve()

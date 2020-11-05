@@ -19,10 +19,11 @@ const columns = [
 export function PlayerTable() {
     const isLoaded = useSelector((state: AppState) => state.isLoadedPlayers)
     const players =  useSelector((state :AppState)  => {return state.players})
+    const userData = useSelector((state: AppState) => state.userData)
     const dispatch = useDispatch()
 
     if (!isLoaded){
-        loadPlayers(dispatch)
+        loadPlayers(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
@@ -53,11 +54,7 @@ export function PlayerTable() {
                 onRowUpdate: (newData, oldData) => {
                     updatePlayer(dispatch, newData)
                     return Promise.resolve()
-                },
-                // onRowDelete: (oldData) => {
-                //     deletePlayer(dispatch, oldData.player.id)
-                //     return Promise.resolve()
-                // }
+                }
             }}
         />
     );

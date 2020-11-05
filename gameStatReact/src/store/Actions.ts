@@ -1,14 +1,26 @@
 import {Dispatch} from "react";
 import {Game} from "../model/Game";
 import {
-    ADD_PLAYER, ADD_GAME_SESSION,
-    ADD_GAME, DELETE_PLAYER, DELETE_GAME_SESSION,
+    ADD_PLAYER,
+    ADD_GAME_SESSION,
+    ADD_GAME,
+    DELETE_PLAYER,
+    DELETE_GAME_SESSION,
     DELETE_GAME,
     LOAD_PLAYERS,
     LOAD_GAME_SESSIONS,
-    LOAD_GAMES, SHOW_LOGIN_DIALOG, SET_ERROR_MESSAGE,
-    UPDATE_PLAYER, UPDATE_GAME_SESSION,
-    UPDATE_GAME, CLEAR_DATA, LOAD_TEAMS, DELETE_TEAM, ADD_TEAM, STATISTICS_PLAYER, STATISTICS_SESSION_MONTH
+    LOAD_GAMES,
+    SET_ERROR_MESSAGE,
+    UPDATE_PLAYER,
+    UPDATE_GAME_SESSION,
+    UPDATE_GAME,
+    CLEAR_DATA,
+    LOAD_TEAMS,
+    DELETE_TEAM,
+    ADD_TEAM,
+    STATISTICS_PLAYER,
+    STATISTICS_SESSION_MONTH,
+    AUTHENTICATION
 } from "./ActionConsts";
 import {Player} from "../model/Player";
 import {GameSessionDto} from "../model/GameSession";
@@ -17,7 +29,12 @@ import {PlayerRow} from "../view/PlayerTable";
 import {GameSessionRow} from "../view/GameSessionTable";
 import {Team} from "../model/Team";
 import {GameSessionMonthDto} from "../model/GameSessionMonth";
+import * as URl from "url";
+import {AppState, UserData} from "./Storable";
+import {useSelector} from "react-redux";
 
+const LOGIN_URL = '/gameserver/login'
+const LOGOUT_URL = '/gameserver/logout'
 const GAMES_URL = '/gameserver/games'
 const PLAYERS_URL = '/gameserver/players'
 const TEAMS_URL = '/gameserver/teams'
@@ -30,6 +47,8 @@ export interface FetchProps {
     method: string
     body: string
     responseFunc: { (r: Response): void }
+    userId: number
+    userKey: string
 }
 
 function baseFetch(dispatch: Dispatch<any>, props: FetchProps) {
@@ -38,7 +57,7 @@ function baseFetch(dispatch: Dispatch<any>, props: FetchProps) {
             props.responseFunc(response)
         }
         if (response.status === 401) {
-            dispatch({type: SHOW_LOGIN_DIALOG, data: true, fetchProps: props})
+            authorizationFetch(dispatch, props)
         }
         if (response.status === 403) {
             dispatch({type: SET_ERROR_MESSAGE, message: "Ошибка авторизации"})
@@ -63,42 +82,63 @@ function baseFetch(dispatch: Dispatch<any>, props: FetchProps) {
         }).then(responseHandle).catch(errorHandle)
 }
 
-export function loginFetch(dispatch: Dispatch<any>, login: String, password: String, props: FetchProps) {
+export function authenticationFetch(dispatch: Dispatch<any>) {
+    const wnd = window.open(`http://localhost:8080/userserver/user`,"AuthWindow",
+        "height=700,width=500,dependent,modal,alwaysRaised,chrome=yes,centerscreen");
 
-    fetch("/login", {
+    window.addEventListener("message",e => {
+        if (e.origin != `http://localhost:8080`){
+            return
+        }
+        const userData: UserData = {name: e.data.name, id: e.data.id, key: e.data.key, isAuthorization: true}
+        dispatch({type: AUTHENTICATION, data: userData})
+    }, false)
+
+}
+
+export function authorizationFetch(dispatch: Dispatch<any>, props: FetchProps) {
+    fetch(LOGIN_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
         credentials: "include",
         redirect: "manual",
-        body: "username=" + login +"&password=" + password
+        body: "username=" + props.userId +"&password=" + props.userKey
     }).then(response => {
         console.log(response.status)
-        dispatch({type: SHOW_LOGIN_DIALOG, data: false})
         if (response.ok){
             console.log(response.url)
             baseFetch(dispatch, props)
         } else {
-            dispatch({type: SHOW_LOGIN_DIALOG, data: true})
+            dispatch({type: SET_ERROR_MESSAGE, message: "Ошибка при загрузке данных"})
         }
     })
 }
 
 export function logoutFetch(dispatch: Dispatch<any>) {
-    fetch("/logout", {
+    fetch(LOGOUT_URL, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json;charset=utf-8'
         },
         redirect: "manual"
     }).then(response => {
-        dispatch({type: SHOW_LOGIN_DIALOG, data: true})
+        dispatch({type: CLEAR_DATA})
+    })
+
+    fetch('/userserver/logout', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json;charset=utf-8'
+        },
+        redirect: "manual"
+    }).then(response => {
         dispatch({type: CLEAR_DATA})
     })
 }
 
-export function loadGames(dispatch: Dispatch<any>) {
+export function loadGames(dispatch: Dispatch<any>, userData: UserData) {
     let props = {
         url: GAMES_URL,
         method: 'GET',
@@ -110,12 +150,14 @@ export function loadGames(dispatch: Dispatch<any>) {
                     dispatch({type: LOAD_GAMES, data: games})
                 })
             }
-        }
+        },
+        userId: userData.id,
+        userKey: userData.key
     }
     baseFetch(dispatch, props)
 }
 
-export function loadPlayers(dispatch: Dispatch<any>) {
+export function loadPlayers(dispatch: Dispatch<any>, userData: UserData) {
     let props = {
         url: PLAYERS_URL,
         method: 'GET',
@@ -127,12 +169,14 @@ export function loadPlayers(dispatch: Dispatch<any>) {
                     dispatch({type: LOAD_PLAYERS, data: players})
                 })
             }
-        }
+        },
+        userId: userData.id,
+        userKey: userData.key
     }
     baseFetch(dispatch, props)
 }
 
-export function loadTeams(dispatch: Dispatch<any>) {
+export function loadTeams(dispatch: Dispatch<any>, userData: UserData) {
     let props = {
         url: TEAMS_URL,
         method: 'GET',
@@ -144,13 +188,15 @@ export function loadTeams(dispatch: Dispatch<any>) {
                     dispatch({type: LOAD_TEAMS, data: teams})
                 })
             }
-        }
+        },
+        userId: userData.id,
+        userKey: userData.key
     }
     baseFetch(dispatch, props)
 
 }
 
-export function loadGameSessions(dispatch: Dispatch<any>) {
+export function loadGameSessions(dispatch: Dispatch<any>, userData: UserData) {
     let props = {
         url: GAME_SESSION_URL,
         method: 'GET',
@@ -162,7 +208,9 @@ export function loadGameSessions(dispatch: Dispatch<any>) {
                     dispatch({type: LOAD_GAME_SESSIONS, data: gameSessionDtos})
                 })
             }
-        }
+        },
+        userId: userData.id,
+        userKey: userData.key
     }
     baseFetch(dispatch, props)
 }
@@ -179,7 +227,9 @@ export function addGame(dispatch: Dispatch<any>, name: string) {
                     dispatch({type: ADD_GAME, data: game})
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -197,7 +247,9 @@ export function updateGame(dispatch: Dispatch<any>, gameRow: GameRow) {
                     }
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -218,7 +270,9 @@ export function deleteGame(dispatch: Dispatch<any>, id: number) {
                 })
 
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -235,7 +289,9 @@ export function addPlayer(dispatch: Dispatch<any>, name: string) {
                     dispatch({type: ADD_PLAYER, data: author})
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -253,7 +309,9 @@ export function updatePlayer(dispatch: Dispatch<any>, playerRow: PlayerRow) {
                     }
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -274,7 +332,9 @@ export function deletePlayer(dispatch: Dispatch<any>, id: number) {
                     }
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -291,7 +351,9 @@ export function addTeam(dispatch: Dispatch<any>, nameTeam: string, players: Arra
                     dispatch({type: ADD_TEAM, data: team})
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -305,7 +367,9 @@ export function deleteTeam(dispatch: Dispatch<any>, id: number) {
             if (response.ok) {
                 dispatch({type: DELETE_TEAM, data: id})
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -322,28 +386,12 @@ export function addGameSession(dispatch: Dispatch<any>, gameSessionDto: GameSess
                     dispatch({type: ADD_GAME_SESSION, data: resultDto})
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
-
-// export function updateBook(dispatch: Dispatch<any>, bookRow: GameSessionRow) {
-//     let props = {
-//         url: GAME_SESSION_URL + "/" + bookRow.book.id,
-//         method: 'PUT',
-//         body: JSON.stringify({name: bookRow.name, authorId: bookRow.author, genreId: bookRow.genre, year: bookRow.year}),
-//         responseFunc: (response: Response) => {
-//             if (response.ok) {
-//                 response.json().then(data => {
-//                     if (data === true) {
-//                         dispatch({type: UPDATE_GAME_SESSION, row: bookRow})
-//                     }
-//                 })
-//             }
-//         }
-//     }
-//     baseFetch(dispatch, props)
-// }
 
 export function deleteGameSession(dispatch: Dispatch<any>, id: number) {
     let props = {
@@ -354,7 +402,9 @@ export function deleteGameSession(dispatch: Dispatch<any>, id: number) {
             if (response.ok) {
                 dispatch({type: DELETE_GAME_SESSION, data: id})
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -371,7 +421,9 @@ export function getStatisticsPlayer(dispatch: Dispatch<any>, id: number) {
                     dispatch({type: STATISTICS_PLAYER, data: gameSessionDtos, playerId: id})
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }
@@ -388,7 +440,9 @@ export function getStatisticsPopularGames(dispatch: Dispatch<any>) {
                     dispatch({type: STATISTICS_SESSION_MONTH, data: gameSessionMonthDtos})
                 })
             }
-        }
+        },
+        userId: -1,
+        userKey: ""
     }
     baseFetch(dispatch, props)
 }

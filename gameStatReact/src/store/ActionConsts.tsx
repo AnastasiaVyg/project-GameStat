@@ -1,8 +1,9 @@
+export const AUTHENTICATION = 'AUTHENTICATION'
+
 export const LOAD_PLAYERS = 'LOAD_AUTHORS'
 export const LOAD_GAMES = 'LOAD_GAMES'
 export const LOAD_TEAMS = 'LOAD_TEAMS'
 export const LOAD_GAME_SESSIONS = 'LOAD_GAME_SESSIONS'
-// export const LOAD_COMMENTS = 'LOAD_COMMENTS'
 
 export const ADD_GAME = 'ADD_GAME'
 export const UPDATE_GAME = 'UPDATE_GAME'

@@ -25,17 +25,6 @@ export interface GameSessionRow {
     gameSession: GameSession;
 }
 
-// class SelectedBookState {
-//     static readonly nonSelectedBook = new SelectedBookState(GameSession.empty)
-//
-//     constructor(readonly book : GameSession) {
-//     }
-// }
-
-// interface Lookup {
-//     [id : string] : string
-// }
-
 export function GameSessionTable() {
     const isLoadedGameSessions = useSelector((state: AppState) => state.isLoadedGameSessions)
     const isLoadedPlayers = useSelector((state: AppState) => state.isLoadedPlayers)
@@ -45,29 +34,29 @@ export function GameSessionTable() {
     const games = useSelector((state: AppState) => {return state.games})
     const players = useSelector((state: AppState) => {return state.players})
     const teams = useSelector((state: AppState) => {return state.teams})
+    const userData = useSelector((state: AppState) => state.userData)
     const dispatch = useDispatch()
-    // const [selectedBookState , setStateSelectedBook] = React.useState(SelectedBookState.nonSelectedBook)
 
     if (!isLoadedGames){
-        loadGames(dispatch)
+        loadGames(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
     }
     if (!isLoadedPlayers){
-        loadPlayers(dispatch)
+        loadPlayers(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
     }
     if (!isLoadedTeams){
-        loadTeams(dispatch)
+        loadTeams(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
     }
     if (!isLoadedGameSessions){
-        loadGameSessions(dispatch)
+        loadGameSessions(dispatch, userData)
         return (
             <CircularIndeterminate/>
         )
@@ -83,16 +72,6 @@ export function GameSessionTable() {
             gameSession: gameSession
         }
     })
-
-    // const genresLookup : Lookup = {}
-    // games.forEach( genre => {
-    //     genresLookup[genre.id] = genre.name
-    // })
-
-    // const authorsLookup: Lookup = {}
-    // players.forEach( author => {
-    //     authorsLookup[author.id] = author.name
-    // })
 
     const columns : Column<GameSessionRow>[] = [
         {title: 'Date', field: 'date'},
@@ -111,14 +90,6 @@ export function GameSessionTable() {
                     actionsColumnIndex: -1
                 }}
                 editable={{
-                    // onRowAdd: (newData) =>{
-                    //     addGameSession(dispatch, newData)
-                    //     return Promise.resolve()
-                    // },
-                    // onRowUpdate: (newData, oldData) =>{
-                    //     updateBook(dispatch, newData)
-                    //     return Promise.resolve()
-                    // },
                     onRowDelete: (oldData) =>{
                         deleteGameSession(dispatch, oldData.gameSession.id)
                         return Promise.resolve()

@@ -18,10 +18,9 @@ import {CLEAR_ERROR_MESSAGE, SET_ERROR_MESSAGE} from "./store/ActionConsts";
 import LoginDialog from "./view/LoginDialog";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
-import {logoutFetch} from "./store/Actions";
+import {authenticationFetch, logoutFetch} from "./store/Actions";
 import {TeamTable} from "./view/TeamTable";
 import StatisticsTabs from "./view/statistics/StatisticsTabs";
-
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -41,75 +40,72 @@ function TabPanel(props: TabPanelProps) {
             {...other}
         >
             {value === index && (
-                <Box p={3}>
-                    <Typography>{children}</Typography>
-                </Box>
+            <Box p={3}>
+                <Typography>{children}</Typography>
+            </Box>
             )}
         </div>
     );
 }
 
-
-
 const store = createStore(storable, composeWithDevTools())
 
 export function App() {
+    return (
+            <Provider store={store}>
+                <Container fixed>
+                    <div className="App">
+                        <Typography variant="h3" color="textPrimary">GameStat</Typography>
+                        <LoginLogoutButtons/>
+                        <MainTabs/>
+                    </div>
+
+                    </Container>
+                <ErrorMessage/>
+            </Provider>
+    );
+}
+
+export function MainTabs() {
     const [value, setValue] = React.useState(0);
     const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
         setValue(newValue);
     };
 
-    return (
-        <Provider store={store}>
-            <Container fixed>
-                <div className="App">
-                    <Typography variant="h3" color="textPrimary">GameStat</Typography>
-                    <LogoutButton/>
-                    <AppBar position="static">
-                        <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
-                            <Tab label="Games"/>
-                            <Tab label="Players"/>
-                            <Tab label="Teams"/>
-                            <Tab label="Results"/>
-                            <Tab label="Statistics"/>
-                        </Tabs>
-
-                    </AppBar>
-                    <TabPanel value={value} index={0}>
-                        <GameTable/>
-                    </TabPanel>
-                    <TabPanel value={value} index={1}>
-                        <PlayerTable/>
-                    </TabPanel>
-                    <TabPanel value={value} index={2}>
-                        <TeamTable/>
-                    </TabPanel>
-                    <TabPanel value={value} index={3}>
-                        <GameSessionTable/>
-                    </TabPanel>
-                    <TabPanel index={4} value={value}>
-                        <StatisticsTabs/>
-                    </TabPanel>
-                </div>
-                </Container>
-
-            <AuthenticationForm/>
-            <ErrorMessage/>
-
-        </Provider>
-    );
-}
-
-function AuthenticationForm() {
-    const isShowLoginDialog = useSelector((state: AppState) => {return state.isShowLoginDialog})
-    const fetchProps = useSelector((state: AppState) => {return state.fetchProps})
-    const dispatch = useDispatch()
-
-    if (isShowLoginDialog) {
-        return <LoginDialog dispatch={dispatch} fetchProps={fetchProps}/>
-    } else {
-        return <></>
+    const isAuthorization = useSelector((state: AppState) => {return state.userData.isAuthorization})
+    if (!isAuthorization){
+        return <></>;
     }
+
+    return (
+        <div>
+            <AppBar position="static">
+                <Tabs value={value} onChange={handleChange} aria-label="simple tabs example">
+                    <Tab label="Games"/>
+                    <Tab label="Players"/>
+                    <Tab label="Teams"/>
+                    <Tab label="Results"/>
+                    <Tab label="Statistics"/>
+                </Tabs>
+            </AppBar>
+            <TabPanel value={value} index={0}>
+                <GameTable/>
+            </TabPanel>
+            <TabPanel value={value} index={1}>
+                <PlayerTable/>
+            </TabPanel>
+            <TabPanel value={value} index={2}>
+                <TeamTable/>
+            </TabPanel>
+            <TabPanel value={value} index={3}>
+                <GameSessionTable/>
+            </TabPanel>
+            <TabPanel index={4} value={value}>
+                <StatisticsTabs/>
+            </TabPanel>
+        </div>
+
+    );
 }
 
 function ErrorMessage(){
@@ -134,16 +130,36 @@ function ErrorMessage(){
     />
 }
 
-function LogoutButton() {
-    const message =  useSelector((state :AppState)  => {return state.errorMessage})
+function LoginLogoutButtons() {
     const dispatch = useDispatch()
+    const isAuthorization = useSelector((state: AppState) => {return state.userData.isAuthorization})
+    const userName = useSelector((state: AppState) => {return state.userData.name})
+
+    const loginHandle = () => {
+        authenticationFetch(dispatch)
+    }
     const logoutHandle = () => {
         logoutFetch(dispatch)
     }
 
-    return <Grid container aria-colspan={5} alignItems="flex-start" justify="flex-end" direction="row">
-        <Box mb={4}>
-            <Button color = "primary" variant="outlined" onClick={logoutHandle}>Logout</Button>
-        </Box>
-    </Grid>
+    let welcome: JSX.Element = <></>;
+    let button: JSX.Element;
+
+    if (isAuthorization){
+        welcome = <Typography color="textPrimary">Welcome, {userName}</Typography>
+        button = <Box mb={4}><Button color = "primary" variant="outlined" onClick={logoutHandle}>Logout</Button></Box>
+    } else {
+        button = <Box mb={4}><Button color = "primary" variant="outlined" onClick={loginHandle}>Login</Button></Box>
+    }
+
+    return <div>
+        <Grid container aria-colspan={5} alignItems="flex-start" justify="flex-end" direction="row">
+            {button}
+        </Grid>
+        <Grid container aria-colspan={5} alignItems="flex-start" justify="flex-end" direction="row">
+            <Box mb={4}>
+                {welcome}
+            </Box>
+        </Grid>
+    </div>
 }

@@ -6,7 +6,7 @@ import Dialog from "@material-ui/core/Dialog";
 import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import {GameSession} from "../model/GameSession";
-import {FetchProps, loginFetch} from "../store/Actions";
+import {FetchProps, authenticationFetch} from "../store/Actions";
 
 export interface LoginDialogProps {
     dispatch: Dispatch<any>
@@ -15,7 +15,6 @@ export interface LoginDialogProps {
 
 export default function LoginDialog(props: LoginDialogProps) {
     const [open, setOpen] = React.useState(true);
-    // setOpen(true);
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -31,7 +30,6 @@ export default function LoginDialog(props: LoginDialogProps) {
     const handleLogin = () => {
         const login: string = inputLogin.current!.value
         const password: string = inputPassword.current!.value
-        loginFetch(props.dispatch, login, password, props.fetchProps)
         setOpen(false);
     }
 
