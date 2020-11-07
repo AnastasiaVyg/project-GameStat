@@ -24,7 +24,7 @@ public class GamesUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         String userGuid = authenticationService.getUserGuid(userId);
 
-        if (userGuid == null){
+        if (userGuid == null || userGuid.equals("")){
             throw new UsernameNotFoundException("user not found");
         }
 
