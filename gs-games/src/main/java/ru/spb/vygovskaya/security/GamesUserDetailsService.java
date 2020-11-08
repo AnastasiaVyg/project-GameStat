@@ -9,7 +9,6 @@ import ru.spb.vygovskaya.service.AuthenticationService;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class GamesUserDetailsService implements UserDetailsService {

@@ -26,12 +26,12 @@ public class StatisticsController {
     }
 
 
-    @GetMapping("/statistics/teams/{id}")
-    public List<GameSessionDto> getStatisticsTeamToPeriod(@PathVariable Long id){
-        Date d1 = new Date(1598560344000L);
-        Date d2 = new Date();
-        return statisticsService.getGameSessionByTeamByPeriod(id, d1, d2);
-    }
+//    @GetMapping("/statistics/teams/{id}")
+//    public List<GameSessionDto> getStatisticsTeamToPeriod(@PathVariable Long id){
+//        Date d1 = new Date(1598560344000L);
+//        Date d2 = new Date();
+//        return statisticsService.getGameSessionByTeamByPeriod(id, d1, d2);
+//    }
 
     @GetMapping("/statistics/games")
     public List<GameSessionMonthDto> getStatisticsGamesCountByMonth() {
@@ -39,10 +39,10 @@ public class StatisticsController {
     }
 
 //    @GetMapping("/statistics/teams/{id}/games/{id2}")
-    @GetMapping("/statistics/games/teams/{id}")
-    public List<GameSessionDto> getStatisticsTeamAndGame(@PathVariable Long id){
-        return statisticsService.getGameSessionByTeamAndGame(id, 2);
-    }
+//    @GetMapping("/statistics/games/teams/{id}")
+//    public List<GameSessionDto> getStatisticsTeamAndGame(@PathVariable Long id){
+//        return statisticsService.getGameSessionByTeamAndGame(id, 2);
+//    }
 
     @GetMapping("/statistics/player/{id}")
     public List<GameSessionDto> getStatisticsPlayer(@PathVariable Long id){

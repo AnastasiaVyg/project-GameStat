@@ -31,7 +31,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/**").hasAnyAuthority("user")
+                .antMatchers("/games/**", "/players/**", "/teams/**", "/results/**", "/statistics/**")
+                .hasAnyAuthority("user")
                 .and()
                 .formLogin().loginProcessingUrl("/login")
                 .successHandler(new RefererRedirectionAuthenticationSuccessHandler())

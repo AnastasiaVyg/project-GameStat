@@ -2,7 +2,6 @@ package ru.spb.vygovskaya.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.spb.vygovskaya.domain.Game;
 import ru.spb.vygovskaya.dto.TeamDto;
 import ru.spb.vygovskaya.service.TeamService;
 

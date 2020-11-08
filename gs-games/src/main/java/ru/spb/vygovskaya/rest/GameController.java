@@ -1,13 +1,11 @@
 package ru.spb.vygovskaya.rest;
 
-import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 import ru.spb.vygovskaya.domain.Game;
 import ru.spb.vygovskaya.service.GameService;
 
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController

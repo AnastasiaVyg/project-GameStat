@@ -1,7 +1,5 @@
 package ru.spb.vygovskaya.service;
 
-import ru.spb.vygovskaya.domain.GameResult;
-import ru.spb.vygovskaya.domain.GameSession;
 import ru.spb.vygovskaya.dto.GameSessionDto;
 import ru.spb.vygovskaya.dto.GameSessionMonthDto;
 

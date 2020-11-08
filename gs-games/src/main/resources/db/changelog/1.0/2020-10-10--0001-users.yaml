@@ -14,7 +14,7 @@ databaseChangeLog:
                       nullable: false
                       primaryKey: true
                 - column:
-                    name: autorize_key
-                    type: bigint
+                    name: email
+                    type: varchar(255)
                     constraints:
                       nullable: false

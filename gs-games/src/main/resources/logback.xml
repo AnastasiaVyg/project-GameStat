@@ -19,8 +19,11 @@
         <appender-ref ref="Console" />
     </root>
 
+    <logger name="ru.spb.vygovskaya" level="TRACE"/>
+
     <logger name="org.springframework.web" level="TRACE" />
-    <logger name="org.springframework.security" level="TRACE" />
-    <logger name="org.apache.http" level="DEBUG"/>
-    <logger name="org.apache.http.wire" level="DEBUG"/>
+    <logger name="org.springframework.security" level="INFO" />
+    <logger name="com.netflix.hystrix" level="TRACE"/>
+    <logger name="org.apache.http" level="INFO"/>
+<!--    <logger name="org.apache.http.wire" level="DEBUG"/>-->
 </configuration>

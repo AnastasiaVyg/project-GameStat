@@ -1,18 +1,16 @@
 package ru.spb.vygovskaya.service;
 
+import com.netflix.hystrix.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.spb.vygovskaya.domain.Player;
 import ru.spb.vygovskaya.domain.Team;
-import ru.spb.vygovskaya.dto.PlayerDto;
 import ru.spb.vygovskaya.dto.TeamDto;
 import ru.spb.vygovskaya.repository.PlayerRepository;
 import ru.spb.vygovskaya.repository.TeamRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TeamServiceImpl implements TeamService{
@@ -28,10 +26,22 @@ public class TeamServiceImpl implements TeamService{
 
     @Override
     public List<TeamDto> findAll() {
-        List<Team> teams = teamRepository.findAll();
-        List<TeamDto> result = new ArrayList<>();
-        teams.forEach(team -> result.add(new TeamDto(team)));
-        return result;
+        com.netflix.hystrix.HystrixCommand<List<TeamDto>> cmd = new HystrixCommand<>(Keys.jdbcSetter) {
+            private String guid = UUID.randomUUID().toString();
+            @Override
+            protected List<TeamDto> run() throws Exception {
+               List<Team> teams = teamRepository.findAll();
+               List<TeamDto> result = new ArrayList<>();
+               teams.forEach(team -> result.add(new TeamDto(team)));
+               return result;
+            }
+
+            @Override
+            protected List<TeamDto> getFallback() {
+                return Collections.emptyList();
+            }
+        };
+        return cmd.execute();
     }
 
     @Transactional
@@ -43,8 +53,6 @@ public class TeamServiceImpl implements TeamService{
             Optional<Player> player = playerRepository.findById(playerInfoDto.getId());
             player.ifPresent(player1 -> {
                 teamSave.addPlayer(player1);
-//                player1.addTeam(teamSave);
-//                playerRepository.save(player1);
             });
         });
         Team teamSave2 = teamRepository.save(teamSave);

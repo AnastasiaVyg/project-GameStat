@@ -45,3 +45,21 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 30
     leaseExpirationDurationInSeconds: 90
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation: THREAD
+    jdbcCommand:
+      execution:
+        timeout:
+        isolation:
+          strategy: SEMAPHORE
+      metrics:
+        rollingStats:
+          timeInMilliseconds: 1500000
+      circuitBreaker:
+        requestVolumeThreshold: 1
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 600000

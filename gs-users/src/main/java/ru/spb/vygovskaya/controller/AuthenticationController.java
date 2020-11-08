@@ -30,7 +30,6 @@ public class AuthenticationController {
             Timestamp timeNow = new Timestamp(System.currentTimeMillis());
             Timestamp authenticationTime = optionalUser.get().getAuthenticationTime();
             long l = timeNow.getTime() - authenticationTime.getTime();
-            System.out.println("!!!!!!!!!!!!!  "+l);
             if (l > 5000){
                 return "";
             }

@@ -12,8 +12,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id = -1;
 
-    @Column(name = "autorize_key")
-    private long autorizeKey;
+    @Column(name = "email")
+    private String email;
 
     @OneToMany(mappedBy = "user" , targetEntity = Player.class, fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Player> players = new ArrayList<>();
@@ -21,13 +21,13 @@ public class User {
     public User() {
     }
 
-    public User(long id, long autorizeKey) {
+    public User(long id, String email) {
         this.id = id;
-        this.autorizeKey = autorizeKey;
+        this.email = email;
     }
 
-    public User(long autorizeKey) {
-        this.autorizeKey = autorizeKey;
+    public User(String email) {
+        this.email = email;
     }
 
     public long getId() {
@@ -38,12 +38,12 @@ public class User {
         this.id = id;
     }
 
-    public long getAutorizeKey() {
-        return autorizeKey;
+    public String getEmail() {
+        return email;
     }
 
-    public void setAutorizeKey(long autorizeKey) {
-        this.autorizeKey = autorizeKey;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public List<Player> getPlayers() {

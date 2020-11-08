@@ -1,11 +1,14 @@
 package ru.spb.vygovskaya.service;
 
+
+import com.netflix.hystrix.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.spb.vygovskaya.domain.Game;
 import ru.spb.vygovskaya.repository.GameRepository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +24,18 @@ public class GameServiceImpl implements GameService{
 
     @Override
     public List<Game> findAll() {
-        return gameRepository.findAll();
+        HystrixCommand<List<Game>> cmd = new HystrixCommand(Keys.jdbcSetter) {
+            @Override
+            protected List<Game> run() throws Exception {
+                return gameRepository.findAll();
+            }
+
+            @Override
+            protected List<Game> getFallback() {
+                return Collections.emptyList();
+            }
+        };
+        return cmd.execute();
     }
 
     @Transactional
