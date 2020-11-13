@@ -11,6 +11,7 @@ import java.util.Optional;
 @RestController
 public class AuthenticationController {
 
+    private static final int PASSWORD_LIFE_TIME = 5000;
     private final UserService userService;
     private final AuthConfig authConfig;
 
@@ -30,7 +31,7 @@ public class AuthenticationController {
             Timestamp timeNow = new Timestamp(System.currentTimeMillis());
             Timestamp authenticationTime = optionalUser.get().getAuthenticationTime();
             long l = timeNow.getTime() - authenticationTime.getTime();
-            if (l > 5000){
+            if (l > PASSWORD_LIFE_TIME){
                 return "";
             }
 
