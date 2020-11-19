@@ -11,5 +11,5 @@ public interface PlayerService {
     PlayerDto save(PlayerDto playerDto);
     Optional<Player> findById(Long id);
     void deleteById(Long id);
-    boolean update(PlayerDto playerDto);
+    boolean updateName(Long id, String name);
 }

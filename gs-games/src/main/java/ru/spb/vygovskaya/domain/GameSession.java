@@ -1,15 +1,19 @@
 package ru.spb.vygovskaya.domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "game_sessions")
+//@NamedEntityGraph(name = "game-session-entity-graph",
+//        attributeNodes = {@NamedAttributeNode("game"), @NamedAttributeNode("team"), @NamedAttributeNode("results")})
 public class GameSession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long id = -1;
 
     @Column(name = "date")
     private Date date;
@@ -22,26 +26,23 @@ public class GameSession {
     @JoinColumn(name = "team_id")
     private Team team;
 
-    @ManyToOne(targetEntity = Player.class, cascade = CascadeType.DETACH, fetch = FetchType.EAGER)
-    @JoinColumn(name = "winner_id")
-    private Player winner;
+    @OneToMany(mappedBy = "gameSession" , targetEntity = GameResult.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<GameResult> results = new ArrayList<>();
 
     public GameSession() {
     }
 
-    public GameSession(long id, Date date, Game game, Team team, Player winner) {
+    public GameSession(long id, Date date, Game game, Team team) {
         this.id = id;
         this.date = date;
         this.game = game;
         this.team = team;
-        this.winner = winner;
     }
 
-    public GameSession(Date date, Game game, Team team, Player winner) {
+    public GameSession(Date date, Game game, Team team) {
         this.date = date;
         this.game = game;
         this.team = team;
-        this.winner = winner;
     }
 
     public long getId() {
@@ -76,11 +77,12 @@ public class GameSession {
         this.team = team;
     }
 
-    public Player getWinner() {
-        return winner;
+    public List<GameResult> getResults() {
+        return results;
     }
 
-    public void setWinner(Player winner) {
-        this.winner = winner;
+    public void setResults(List<GameResult> results) {
+        this.results = results;
     }
+
 }

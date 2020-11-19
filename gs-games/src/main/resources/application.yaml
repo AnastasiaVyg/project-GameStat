@@ -13,5 +13,53 @@ spring:
     hibernate:
       ddl-auto: none
     show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+
 server:
   port: 7102
+
+auth:
+  key: 4ea813db-ccbd-47df-b0c7-d2cd7e845658
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8001/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  server:
+    eviction-interval-timer-in-ms: 15000
+  instance:
+    leaseRenewalIntervalInSeconds: 30
+    leaseExpirationDurationInSeconds: 90
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation: THREAD
+    jdbcCommand:
+      execution:
+        timeout:
+        isolation:
+          strategy: SEMAPHORE
+      metrics:
+        rollingStats:
+          timeInMilliseconds: 1500000
+      circuitBreaker:
+        requestVolumeThreshold: 1
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 600000

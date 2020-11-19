@@ -10,7 +10,7 @@ public class Player {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long id = -1;
 
     @Column(name = "name")
     private String name;
@@ -23,7 +23,7 @@ public class Player {
     @JoinTable (name="teams_players",
             joinColumns=@JoinColumn(name="player_id"),
             inverseJoinColumns=@JoinColumn(name="team_id"))
-    private List<Team> teams;
+    private List<Team> teams = new ArrayList<>();
 
     public Player() {
     }
@@ -74,5 +74,9 @@ public class Player {
 
     public void setTeams(List<Team> teams) {
         this.teams = teams;
+    }
+
+    public void addTeam(Team team){
+        this.teams.add(team);
     }
 }

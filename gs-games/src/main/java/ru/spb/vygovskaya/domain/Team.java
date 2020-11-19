@@ -1,6 +1,7 @@
 package ru.spb.vygovskaya.domain;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -9,7 +10,7 @@ public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long id = -1;
 
     @Column(name = "name")
     private String name;
@@ -18,7 +19,7 @@ public class Team {
     @JoinTable (name="teams_players",
             joinColumns=@JoinColumn(name="team_id"),
             inverseJoinColumns=@JoinColumn(name="player_id"))
-    private List<Player> players;
+    private List<Player> players = new ArrayList<>();
 
     public Team() {
     }
@@ -54,5 +55,9 @@ public class Team {
 
     public void setPlayers(List<Player> players) {
         this.players = players;
+    }
+
+    public void addPlayer(Player player){
+        this.players.add(player);
     }
 }

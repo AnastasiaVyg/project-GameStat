@@ -1,40 +1,50 @@
 package ru.spb.vygovskaya.service;
 
+import com.netflix.hystrix.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.spb.vygovskaya.domain.Player;
 import ru.spb.vygovskaya.domain.User;
 import ru.spb.vygovskaya.dto.PlayerDto;
 import ru.spb.vygovskaya.repository.PlayerRepository;
-import ru.spb.vygovskaya.repository.TeamRepository;
 import ru.spb.vygovskaya.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class PlayerServiceImpl implements PlayerService{
 
     private final PlayerRepository playerRepository;
-    private final TeamRepository teamRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public PlayerServiceImpl(PlayerRepository playerRepository, TeamRepository teamRepository, UserRepository userRepository) {
+    public PlayerServiceImpl(PlayerRepository playerRepository, UserRepository userRepository) {
         this.playerRepository = playerRepository;
-        this.teamRepository = teamRepository;
         this.userRepository = userRepository;
     }
 
     @Override
     public List<PlayerDto> findAll() {
-        List<Player> players = playerRepository.findAll();
-        List<PlayerDto> result = new ArrayList<>();
-        players.stream().forEach(player -> result.add(new PlayerDto(player)));
-        return result;
+        com.netflix.hystrix.HystrixCommand<List<PlayerDto>> cmd = new HystrixCommand<>(Keys.jdbcSetter) {
+            private String guid = UUID.randomUUID().toString();
+            @Override
+            protected List<PlayerDto> run() throws Exception {
+                List<Player> players = playerRepository.findAll();
+                List<PlayerDto> result = new ArrayList<>();
+                players.forEach(player -> result.add(new PlayerDto(player)));
+                return result;
+            }
+
+            @Override
+            protected List<PlayerDto> getFallback() {
+                return Collections.emptyList();
+            }
+        };
+        return cmd.execute();
     }
 
+    @Transactional
     @Override
     public PlayerDto save(PlayerDto playerDto) {
         Player player = new Player(playerDto.getName());
@@ -51,13 +61,23 @@ public class PlayerServiceImpl implements PlayerService{
         return playerRepository.findById(id);
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
         playerRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
-    public boolean update(PlayerDto playerDto) {
-        return false;
+    public boolean updateName(Long id, String name) {
+        Optional<Player> optionalPlayer = findById(id);
+        if (optionalPlayer.isPresent()){
+            Player player = optionalPlayer.get();
+            player.setName(name);
+            playerRepository.save(player);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2020-10-11--0007-game_result
+      author: avygovskaya
+      changes:
+        - createTable:
+            - tableName: game_results
+              columns:
+                - column:
+                    name: id
+                    type: bigint
+                    autoIncrement: true
+                    constraints:
+                      nullable: false
+                      primaryKey: true
+                - column:
+                    name: game_session_id
+                    type: bigint
+                    constraints:
+                      nullable: false
+                      foreignKeyName: fk_result_session_game
+                      references: game_sessions(id)
+                      deleteCascade: true
+                - column:
+                    name: player_id
+                    type: bigint
+                    constraints:
+                      nullable: false
+                      foreignKeyName: fk_result_player
+                      references: players(id)
+                      deleteCascade: false
+                - column:
+                    name: points
+                    type: bigint
+                    constraints:
+                      nullable: false

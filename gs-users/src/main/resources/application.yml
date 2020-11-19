@@ -1,4 +1,7 @@
 spring:
+  logging:
+    level:
+      root=TRACE
   security:
     oauth2:
       client:
@@ -6,7 +9,54 @@ spring:
           google:
             clientId: 1087692253590-0c5ims6kmt1edhj75tos3kq5mjsogf8h.apps.googleusercontent.com
             clientSecret: Ne57bqZsCKBMxek6FQDqTn3l
+
   application:
     name: gs-users
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/games?currentSchema=schema_users
+    username: postgres
+    password: postgres
+    driverClassName: org.postgresql.Driver
+    initialization-mode: always
+  jpa:
+    generate-ddl: false
+    hibernate:
+      ddl-auto: none
+      default_schema: schema_users
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQL10Dialect
+
 server:
   port: 7101
+  servlet:
+    context-path: /userserver
+
+auth:
+  key: 4ea813db-ccbd-47df-b0c7-d2cd7e845658
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8001/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  server:
+    eviction-interval-timer-in-ms: 15000
+  instance:
+    leaseRenewalIntervalInSeconds: 30
+    leaseExpirationDurationInSeconds: 90
+

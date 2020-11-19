@@ -6,9 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TeamDto {
-    private long id;
+    private long id = -1;
     private String name;
     private List<PlayerInfoDto> players;
+
+    public TeamDto() {
+    }
 
     public TeamDto(long id, String name) {
         this.id = id;

@@ -1,6 +1,7 @@
 package ru.spb.vygovskaya.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 import ru.spb.vygovskaya.domain.Game;
 import ru.spb.vygovskaya.service.GameService;
@@ -33,7 +34,13 @@ public class GameController {
     }
 
     @DeleteMapping("/games/{id}")
-    public void deleteGame(@PathVariable Long id){
-        gameService.deleteById(id);
+    public boolean deleteGame(@PathVariable Long id){
+        try {
+            gameService.deleteById(id);
+            return true;
+        } catch (DataIntegrityViolationException e){
+            e.printStackTrace();
+        }
+        return false;
     }
 }
